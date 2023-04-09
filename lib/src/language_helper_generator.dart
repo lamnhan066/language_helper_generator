@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:language_helper_generator/src/utils/list_all_files.dart';
+import 'package:language_helper_generator/src/utils/parser.dart';
 
 class LanguageHelperGenerator {
   Future<void> run() async {
@@ -23,41 +24,19 @@ class LanguageHelperGenerator {
 
         // Read and decode the file
         final data = file.readAsBytesSync();
-        final text = const Utf8Codec().decode(data);
+        String text = const Utf8Codec().decode(data);
 
-        // Get all available text that using the LanguageHelper extensions
-        const extensionPattern =
-            r'''(?<!\\)(['"])(?:(?!\1|[@{]).|(?<=\\)\1|@\{\w+\})*\1\.(?:tr|trP|trT|trF)''';
-        final regex = RegExp(extensionPattern);
-        final listText = regex.allMatches(text);
-        for (final match in listText) {
-          // Remove the `.tr`, `.trP`,..
-          final list = match.group(0)!.split('.')..removeLast();
+        result[filePath] = [];
+        result[filePath]!.addAll(parseString(text, endingTag: '.trT('));
+        result[filePath]!.addAll(parseString(text, endingTag: '.trF('));
+        result[filePath]!.addAll(parseString(text, endingTag: '.trP('));
+        result[filePath]!.addAll(parseString(text, endingTag: '.tr;'));
+        result[filePath]!.addAll(parseString(text, endingTag: '.tr}'));
+        result[filePath]!.addAll(parseString(text, endingTag: '.tr)'));
+        result[filePath]!.addAll(parseString(text, endingTag: '.tr '));
+        result[filePath]!.addAll(parseString(text, startingTag: '.translate('));
 
-          // Add file path and contents
-          if (!result.containsKey(filePath)) {
-            result[filePath] = [list.join('.')];
-            continue;
-          } else {
-            result[filePath]!.add(list.join('.'));
-          }
-        }
-
-        const methodPattern = r'''\.translate\((['\"])(.+?)\1(?:,[^)]*)?\)''';
-        final methodRegex = RegExp(methodPattern);
-        final listMethodResult = methodRegex.allMatches(text);
-        for (final match in listMethodResult) {
-          final capturedQuote = match.group(1);
-          final capturedText = match.group(2);
-          final text = "$capturedQuote$capturedText$capturedQuote";
-          // Add file path and contents
-          if (!result.containsKey(filePath)) {
-            result[filePath] = [text];
-            continue;
-          } else {
-            result[filePath]!.add(text);
-          }
-        }
+        if (result[filePath]!.isEmpty) result.remove(filePath);
       }
     }
 

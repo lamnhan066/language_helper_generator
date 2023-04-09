@@ -1,3 +1,3 @@
 library language_helper_generator;
 
-export 'src/generator.dart';
+export 'src/language_helper_generator.dart';
