@@ -1,6 +1,6 @@
 name: language_helper_generator
-description: A new Flutter package project.
-version: 0.0.1-rc.1
+description: Help you to create a base structure for [language_helper](https://pub.dev/packages/language_helper)
+version: 0.0.1-rc.2
 homepage: https://github.com/vnniz/language_helper_generator
 
 environment:
