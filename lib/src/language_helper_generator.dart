@@ -1,18 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:language_helper_generator/src/models/data_type.dart';
+import 'package:language_helper_generator/src/models/parsed_data.dart';
 import 'package:language_helper_generator/src/utils/list_all_files.dart';
 import 'package:language_helper_generator/src/utils/parser.dart';
 
 class LanguageHelperGenerator {
-  Future<void> run() async {
-    // ignore: avoid_print
-    print('Generating language...');
+  Map<String, List<ParsedData>> generate([String path = './lib/']) {
+    final List<FileSystemEntity> allFiles = listAllFiles(Directory(path), []);
 
-    final List<FileSystemEntity> allFiles =
-        listAllFiles(Directory('./lib/'), []);
-
-    Map<String, List<String>> result = {};
+    Map<String, List<ParsedData>> result = {};
     for (final file in allFiles) {
       // Only analyze the file ending with .dart
       if (file is File && file.path.endsWith('.dart')) {
@@ -26,29 +24,30 @@ class LanguageHelperGenerator {
         final data = file.readAsBytesSync();
         String text = const Utf8Codec().decode(data);
 
-        result[filePath] = [];
-        result[filePath]!.addAll(parseString(text, endingTag: '.trT('));
-        result[filePath]!.addAll(parseString(text, endingTag: '.trF('));
-        result[filePath]!.addAll(parseString(text, endingTag: '.trP('));
-        result[filePath]!.addAll(parseString(text, endingTag: '.tr;'));
-        result[filePath]!.addAll(parseString(text, endingTag: '.tr}'));
-        result[filePath]!.addAll(parseString(text, endingTag: '.tr)'));
-        result[filePath]!.addAll(parseString(text, endingTag: '.tr '));
-        result[filePath]!.addAll(parseString(text, startingTag: '.translate('));
-
-        if (result[filePath]!.isEmpty) result.remove(filePath);
+        final parsed = parse(text);
+        if (parsed.isNotEmpty) result[filePath] = parsed;
       }
     }
 
-    createLanguageDataAbstractFile(result);
-    createLanguageDataFile();
+    return result;
+  }
 
-    // ignore: avoid_print
-    print('All texts are generated!');
+  List<ParsedData> parse(String text) {
+    List<ParsedData> result = [];
+    result.addAll(parseString(text, endingTag: '.trT('));
+    result.addAll(parseString(text, endingTag: '.trF('));
+    result.addAll(parseString(text, endingTag: '.trP('));
+    result.addAll(parseString(text, endingTag: '.tr;'));
+    result.addAll(parseString(text, endingTag: '.tr}'));
+    result.addAll(parseString(text, endingTag: '.tr)'));
+    result.addAll(parseString(text, endingTag: '.tr '));
+    result.addAll(parseString(text, startingTag: '.translate('));
+
+    return result;
   }
 
   /// Create `_language_data_abstract,dart`
-  void createLanguageDataAbstractFile(Map<String, List<String>> data) {
+  void createLanguageDataAbstractFile(Map<String, List<ParsedData>> data) {
     final desFile =
         File('./lib/resources/language_helper/_language_data_abstract.g.dart');
     desFile.createSync(recursive: true);
@@ -65,15 +64,26 @@ class LanguageHelperGenerator {
           .writeln('  ///==============================================');
 
       // Map should contains unique key => comment all duppicated keys
-      for (final text in values) {
-        // Check if the text is duplicate or not. If yes then add comment.
-        String needsComment = '// ';
-        if (!listAllUniqueText.contains(text)) {
-          needsComment = '';
-          listAllUniqueText.add(text);
+      for (final parsed in values) {
+        // Check if the text is duplicate or abnormal. If yes then add comment.
+        String needsComment = '';
+        String needsEndComment = '';
+        if (parsed.type != DataType.normal) {
+          needsComment = '// ';
+          needsEndComment = '  // contains ${parsed.type}';
+          print(
+              '>> Path: $key => Text: ${parsed.text} => Contains: ${parsed.type}');
+        } else {
+          if (listAllUniqueText.contains(parsed.text)) {
+            needsComment = '// ';
+            needsEndComment = '  // Duplicated';
+          } else {
+            listAllUniqueText.add(parsed.text);
+          }
         }
+
         languageData.writeln(
-          '  $needsComment$text: $text,',
+          '  $needsComment${parsed.text}: ${parsed.text},$needsEndComment',
         );
       }
     });

@@ -1,0 +1,1 @@
+enum DataType { normal, containsVariable }
