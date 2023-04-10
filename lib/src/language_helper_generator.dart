@@ -40,6 +40,7 @@ class LanguageHelperGenerator {
     result.addAll(parseString(text, endingTag: '.tr;'));
     result.addAll(parseString(text, endingTag: '.tr}'));
     result.addAll(parseString(text, endingTag: '.tr)'));
+    result.addAll(parseString(text, endingTag: '.tr,'));
     result.addAll(parseString(text, endingTag: '.tr '));
     result.addAll(parseString(text, startingTag: '.translate('));
 

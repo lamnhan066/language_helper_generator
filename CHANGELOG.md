@@ -1,3 +1,7 @@
+## 0.0.1-rc.4
+
+* Improves parser to be able to parse `'test'.tr,`.
+
 ## 0.0.1-rc.3
 
 * Print text in the console if it contains $variable.
