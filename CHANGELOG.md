@@ -1,3 +1,9 @@
+## 0.0.1-rc.3
+
+* Print text in the console if it contains $variable.
+* Add comments to the generated text if it contains invalid information (like $variable, duplicated).
+* Add mutiple tests.
+
 ## 0.0.1-rc.2
 
 * User new parser to parse string which supports multiple lines.

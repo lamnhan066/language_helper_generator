@@ -8,6 +8,13 @@
 
 ## Usage
 
+Install `language_helper_generator` to your `pubspec.yaml` dev dependencies:
+
+``` yaml
+dev_dependencies:
+  language_helper_generator: ^any
+```
+
 Run this command to generate the language from current project.
 
 ``` cmd

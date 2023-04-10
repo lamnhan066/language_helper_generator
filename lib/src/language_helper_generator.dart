@@ -71,6 +71,7 @@ class LanguageHelperGenerator {
         if (parsed.type != DataType.normal) {
           needsComment = '// ';
           needsEndComment = '  // contains ${parsed.type}';
+          // ignore: avoid_print
           print(
               '>> Path: $key => Text: ${parsed.text} => Contains: ${parsed.type}');
         } else {
