@@ -7,7 +7,15 @@ import 'package:language_helper_generator/src/utils/list_all_files.dart';
 import 'package:language_helper_generator/src/utils/parser.dart';
 
 class LanguageHelperGenerator {
-  Map<String, List<ParsedData>> generate([String path = './lib/']) {
+  Map<String, List<ParsedData>>? generate([String path = './lib/']) {
+    final dir = Directory(path);
+    if (!dir.existsSync()) {
+      // ignore: avoid_print
+      print(
+          'The command run in the wrong directory. Please run it in your main directory of the project which containing `lib/`.');
+      return null;
+    }
+
     final List<FileSystemEntity> allFiles = listAllFiles(Directory(path), []);
 
     Map<String, List<ParsedData>> result = {};

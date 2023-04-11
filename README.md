@@ -18,7 +18,7 @@ dev_dependencies:
 Run this command to generate the language from current project.
 
 ``` cmd
-dart run language_helper_generator:main
+flutter pub run language_helper_generator
 ```
 
 This command will generate a structure base files with this format:

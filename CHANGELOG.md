@@ -1,3 +1,8 @@
+## 0.0.1-rc.5
+
+* Able to run with command: `flutter pub run language_helper_generator`.
+* Add a warning message for the wrong working directory.
+
 ## 0.0.1-rc.4
 
 * Improves parser to be able to parse `'test'.tr,`.
