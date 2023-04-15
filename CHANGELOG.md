@@ -1,3 +1,9 @@
+## 0.0.1
+
+* Bring to the first stable release.
+* Change command to `dart run language_helper_generator`.
+* Remove Flutter dependencies.
+
 ## 0.0.1-rc.5
 
 * Able to run with command: `flutter pub run language_helper_generator`.

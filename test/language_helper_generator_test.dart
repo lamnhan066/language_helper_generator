@@ -1,6 +1,6 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:language_helper_generator/language_helper_generator.dart';
 import 'package:language_helper_generator/src/models/data_type.dart';
+import 'package:test/test.dart';
 
 void main() {
   final generator = LanguageHelperGenerator();

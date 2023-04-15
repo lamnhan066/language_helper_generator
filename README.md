@@ -12,13 +12,13 @@ Install `language_helper_generator` to your `pubspec.yaml` dev dependencies:
 
 ``` yaml
 dev_dependencies:
-  language_helper_generator: ^any
+  language_helper_generator: ^latest
 ```
 
 Run this command to generate the language from current project.
 
 ``` cmd
-flutter pub run language_helper_generator
+dart run language_helper_generator
 ```
 
 This command will generate a structure base files with this format:
