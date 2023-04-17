@@ -26,9 +26,13 @@ This command will generate a structure base files with this format:
 ``` txt
 |-- .lib
 |   |--- resources
-|   |    |--- _language_data_abstract.g.dart  // Contains your base language from your all `.dart` files. This file will be re-generated when you run the command.
-|   |    |--- language_data.dart              // Modifiable language data because it's only generated 1 time.
+|   |    |--- language_helper
+|   |    |    |--- _language_data_abstract.g.dart
+|   |    |    |--- language_data.dart
 ```
+
+* `_language_data_abstract.g.dart`: Contains your base language from your all `.dart` files. This file will be re-generated when you run the command.
+* `language_data.dart`: Modifiable language data because it's only generated 1 time.
 
 In the `language_data.dart`, data will show like below:
 
