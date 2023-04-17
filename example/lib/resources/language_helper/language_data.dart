@@ -1,4 +1,4 @@
-import 'package:language_helper/language_helper.dart';
+import '../../utils/language_helper_mock.dart';
 
 part '_language_data_abstract.g.dart';
 

@@ -1,6 +1,4 @@
-import 'package:language_helper/language_helper.dart';
-
-final languageHelper = LanguageHelper.instance;
+import 'package:example/utils/language_helper_mock.dart';
 
 final text1 = "Hello, world! 3".tr;
 final text2 = 'This is a "quoted" string 3'.trT();
