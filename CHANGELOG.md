@@ -1,6 +1,7 @@
-## 0.0.1+1
+## 0.0.1+2
 
 * Use mock in example instead of using `language_helper`.
+* Update base data path in README.
 
 ## 0.0.1
 
