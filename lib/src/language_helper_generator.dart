@@ -79,14 +79,14 @@ class LanguageHelperGenerator {
         String needsEndComment = '';
         if (parsed.type != DataType.normal) {
           needsComment = '// ';
-          needsEndComment = '  // contains ${parsed.type}';
+          needsEndComment = '  // Commented reason: ${parsed.type.text}';
           // ignore: avoid_print
           print(
-              '>> Path: $key => Text: ${parsed.text} => Contains: ${parsed.type}');
+              '>> Path: $key => Text: ${parsed.text} => Commented reason: ${parsed.type.text}');
         } else {
           if (listAllUniqueText.contains(parsed.text)) {
             needsComment = '// ';
-            needsEndComment = '  // Duplicated';
+            needsEndComment = '  // Commented reason: Duplicated';
           } else {
             listAllUniqueText.add(parsed.text);
           }
@@ -98,12 +98,16 @@ class LanguageHelperGenerator {
       }
     });
 
+    final date = DateTime.now();
     final result = '''
 //==========================================================
-// Author: Lâm Thành Nhân (2023)
+// Author: Lâm Thành Nhân
+// Generated Date: ${date.toLocal().toString()} (Local)
 //
 // Generated Code - Do not modify by hand
 //==========================================================
+
+// ignore_for_file: prefer_single_quotes
 
 part of 'language_data.dart';
 
