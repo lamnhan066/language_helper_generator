@@ -1,3 +1,9 @@
+## 0.1.1
+
+* Ignore prefer_single_quotes to the generated file.
+* Improve the commented reason.
+* Update the generated files in the example.
+
 ## 0.1.0
 
 * Bump dart sdk version to `>=2.18.0 <4.0.0`.

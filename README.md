@@ -34,7 +34,30 @@ This command will generate a structure base files with this format:
 * `_language_data_abstract.g.dart`: Contains your base language from your all `.dart` files. This file will be re-generated when you run the command.
 * `language_data.dart`: Modifiable language data because it's only generated 1 time.
 
-In the `language_data.dart`, data will show like below:
+In the `_language_data_abstract.g.dart`, data will be shown like this:
+
+``` dart
+const analysisLanguageData = {
+  ///==============================================
+  /// Path: page_1/page_1.dart
+  ///==============================================
+  'This is a "quoted" string 1': 'This is a "quoted" string 1',
+  'This is a string with @{num} parameters 1': 'This is a string with @{num} parameters 1',
+  "This is a 'quoted' string 1": "This is a 'quoted' string 1",
+  "Hello, world! 1": "Hello, world! 1",
+  // 'This text contains variable $text7': 'This text contains variable $text7',  // Commented reason: Contains variable
+
+  ///==============================================
+  /// Path: page_1/page_2.dart
+  ///==============================================
+  // 'This is a "quoted" string 1': 'This is a "quoted" string 1',  // Commented reason: Duplicated
+  'This is a string with @{num} parameters 2': 'This is a string with @{num} parameters 2',
+  "This is a 'quoted' string 2": "This is a 'quoted' string 2",
+  // "Hello, world! 1": "Hello, world! 1",  // Commented reason: Duplicated
+}
+```
+
+In the `language_data.dart`, data will be shown like this:
 
 ``` dart
 LanguageData languageData = {
