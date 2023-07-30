@@ -1,3 +1,8 @@
+## 0.1.2
+
+* Improve the commented text.
+* Improve TODO text.
+
 ## 0.1.1
 
 * Ignore prefer_single_quotes to the generated file.
