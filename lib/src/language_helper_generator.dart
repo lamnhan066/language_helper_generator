@@ -79,14 +79,14 @@ class LanguageHelperGenerator {
         String needsEndComment = '';
         if (parsed.type != DataType.normal) {
           needsComment = '// ';
-          needsEndComment = '  // Commented reason: ${parsed.type.text}';
+          needsEndComment = '  // Reason: ${parsed.type.text}';
           // ignore: avoid_print
           print(
-              '>> Path: $key => Text: ${parsed.text} => Commented reason: ${parsed.type.text}');
+              '>> Path: $key => Text: ${parsed.text} => Reason: ${parsed.type.text}');
         } else {
           if (listAllUniqueText.contains(parsed.text)) {
             needsComment = '// ';
-            needsEndComment = '  // Commented reason: Duplicated';
+            needsEndComment = '  // Reason: Duplicated';
           } else {
             listAllUniqueText.add(parsed.text);
           }
@@ -132,7 +132,7 @@ import 'package:language_helper/language_helper.dart';
 part '_language_data_abstract.g.dart';
 
 LanguageData languageData = {
-  // TODO: You can use this data as your main language, remember to change this code to your base language code
+  // TODO: You can use this data as your main language, remember to change [LanguageCodes.en] to your base language code
   LanguageCodes.en: analysisLanguageData,
 };
 ''';
