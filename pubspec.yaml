@@ -1,10 +1,13 @@
 name: language_helper_generator
 description: Help you to create a base structure for [language_helper](https://pub.dev/packages/language_helper)
-version: 0.1.4
+version: 0.1.5
 homepage: https://github.com/vnniz/language_helper_generator
 
 environment:
   sdk: ">=2.18.0 <4.0.0"
+
+dependencies:
+  args: ^2.4.2
 
 dev_dependencies:
   test: ^1.24.3

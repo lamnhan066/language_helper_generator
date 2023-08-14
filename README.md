@@ -21,6 +21,12 @@ Run this command to generate the language from current project.
 dart run language_helper_generator
 ```
 
+If you want to change the generating path, you can add this option:
+
+``` cmd
+dart run language_helper_generator --path=./example/lib
+```
+
 This command will generate a structure base files with this format:
 
 ``` txt

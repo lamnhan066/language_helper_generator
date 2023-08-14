@@ -1,3 +1,8 @@
+## 0.1.5
+
+* Support changing the generated path when generating.
+* Add more logs.
+
 ## 0.1.4
 
 * Change the order of the duplicated text to after.
