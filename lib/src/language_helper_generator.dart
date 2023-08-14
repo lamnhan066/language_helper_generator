@@ -7,12 +7,12 @@ import 'package:language_helper_generator/src/utils/list_all_files.dart';
 import 'package:language_helper_generator/src/utils/parser.dart';
 
 class LanguageHelperGenerator {
-  Map<String, List<ParsedData>>? generate([String path = './lib']) {
-    print('Parsing language data from directory: $path...');
-
+  Map<String, List<ParsedData>>? generate([String path = './lib/']) {
     final dir = Directory(path);
     if (!dir.existsSync()) {
-      print('The command run in the wrong directory.');
+      // ignore: avoid_print
+      print(
+          'The command run in the wrong directory. Please run it in your main directory of the project which containing `lib/`.');
       return null;
     }
 
@@ -23,7 +23,7 @@ class LanguageHelperGenerator {
       // Only analyze the file ending with .dart
       if (file is File && file.path.endsWith('.dart')) {
         // get file path and remove `./lib/`
-        final filePath = file.path;
+        final filePath = file.path.substring(6);
 
         // Avoid getting data from this folder
         if (filePath.startsWith('resources/language_helper')) continue;
@@ -36,8 +36,6 @@ class LanguageHelperGenerator {
         if (parsed.isNotEmpty) result[filePath] = parsed;
       }
     }
-
-    print('Done.');
 
     return result;
   }
@@ -58,14 +56,9 @@ class LanguageHelperGenerator {
   }
 
   /// Create `_language_data_abstract,dart`
-  void createLanguageDataAbstractFile(
-    Map<String, List<ParsedData>> data, {
-    String path = './lib',
-  }) {
-    print('Writing parsed data to file...');
-
+  void createLanguageDataAbstractFile(Map<String, List<ParsedData>> data) {
     final desFile =
-        File('$path/resources/language_helper/_language_data_abstract.g.dart');
+        File('./lib/resources/language_helper/_language_data_abstract.g.dart');
     desFile.createSync(recursive: true);
 
     StringBuffer languageData = StringBuffer();
@@ -84,7 +77,6 @@ class LanguageHelperGenerator {
         // Check if the text is duplicate or abnormal. If yes then add comment.
         String needsComment = '';
         String needsEndComment = '';
-
         if (parsed.type != DataType.normal) {
           needsComment = '// ';
           needsEndComment = '  // ${parsed.type.text}';
@@ -92,7 +84,12 @@ class LanguageHelperGenerator {
           print(
               '>> Path: $key => Text: ${parsed.text} => Reason: ${parsed.type.text}');
         } else {
-          listAllUniqueText.add(parsed.text);
+          if (listAllUniqueText.contains(parsed.text)) {
+            needsComment = '// ';
+            needsEndComment = '  // Duplicated';
+          } else {
+            listAllUniqueText.add(parsed.text);
+          }
         }
 
         languageData.writeln(
@@ -118,15 +115,11 @@ const analysisLanguageData = {$languageData};
 ''';
 
     desFile.writeAsString(result);
-
-    print('Done.');
   }
 
   /// Create `language_data.dart`
-  void createLanguageDataFile([String path = './lib']) {
-    print('Creating `language_data.dart`...');
-
-    final desFile = File('$path/resources/language_helper/language_data.dart');
+  void createLanguageDataFile() {
+    final desFile = File('./lib/resources/language_helper/language_data.dart');
 
     // Return if the file already exists
     if (desFile.existsSync()) return;
@@ -145,8 +138,6 @@ LanguageData languageData = {
 ''';
 
     desFile.writeAsString(result);
-
-    print('Done.');
   }
 
   /// This file should not be generated. Just add a doc to let users know
