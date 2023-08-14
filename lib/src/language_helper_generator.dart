@@ -66,11 +66,11 @@ class LanguageHelperGenerator {
     data.forEach((key, values) {
       // Comment file path when move to new file
       languageData.writeln('');
-      languageData
-          .writeln('  ///==============================================');
+      languageData.writeln(
+          '  ///===========================================================================');
       languageData.writeln('  /// Path: $key');
-      languageData
-          .writeln('  ///==============================================');
+      languageData.writeln(
+          '  ///===========================================================================');
 
       // Map should contains unique key => comment all duppicated keys
       for (final parsed in values) {
@@ -79,14 +79,14 @@ class LanguageHelperGenerator {
         String needsEndComment = '';
         if (parsed.type != DataType.normal) {
           needsComment = '// ';
-          needsEndComment = '  // Reason: ${parsed.type.text}';
+          needsEndComment = '  // ${parsed.type.text}';
           // ignore: avoid_print
           print(
               '>> Path: $key => Text: ${parsed.text} => Reason: ${parsed.type.text}');
         } else {
           if (listAllUniqueText.contains(parsed.text)) {
             needsComment = '// ';
-            needsEndComment = '  // Reason: Duplicated';
+            needsEndComment = '  // Duplicated';
           } else {
             listAllUniqueText.add(parsed.text);
           }
@@ -100,12 +100,12 @@ class LanguageHelperGenerator {
 
     final date = DateTime.now();
     final result = '''
-//==========================================================
+//==============================================================================
 // Author: Lâm Thành Nhân
 // Generated Date: ${date.toLocal().toString()} (Local)
 //
 // Generated Code - Do not modify by hand
-//==========================================================
+//==============================================================================
 
 // ignore_for_file: prefer_single_quotes
 
