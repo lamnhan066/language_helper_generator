@@ -1,6 +1,6 @@
 name: language_helper_generator
 description: Help you to create a base structure for [language_helper](https://pub.dev/packages/language_helper)
-version: 0.1.5
+version: 0.1.6
 homepage: https://github.com/vnniz/language_helper_generator
 
 environment:
