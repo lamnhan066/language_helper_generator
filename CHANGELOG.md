@@ -1,3 +1,7 @@
+## 0.1.4
+
+* Change the order of the duplicated text to after.
+
 ## 0.1.3
 
 * Improve the commented text.
