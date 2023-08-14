@@ -8,14 +8,4 @@ class ParsedData {
 
   @override
   String toString() => 'ParsedData(text: $text, type: $type)';
-
-  ParsedData copyWith({
-    String? text,
-    DataType? type,
-  }) {
-    return ParsedData(
-      text ?? this.text,
-      type ?? this.type,
-    );
-  }
 }

@@ -72,31 +72,7 @@ List<ParsedData> parseString(
         : text.substring(startIndex, endIndex + 1);
 
     // get data type
-    var dataType = DataType.parse(parsedText, listParsedData);
-
-    // If there is duplicated text in the reversed list, the current element in the list
-    // will be changed to duplicated, so it will be ordered after the `parsedText`
-    // in the last result.
-    //
-    // Ex:
-    // listParsedData = [d, c, b, a]
-    // parsedText = c
-    // => listParsedData = [d, duplicated of  c, c, b, a, c]
-    // => last result = [c, a, b, duplicated of c, d]
-    //
-    // The last result without this step = [duplicated of c, a, b, c, d]
-    if (isReversed && dataType == DataType.duplicated) {
-      // Change the type of the duplicated text in the list to duplicated
-      for (int i = 0; i < listParsedData.length; i++) {
-        final element = listParsedData[i];
-        if (element.text == parsedText && element.type != DataType.duplicated) {
-          listParsedData[i] = element.copyWith(type: DataType.duplicated);
-        }
-      }
-
-      // Change the current parsed text type to normal
-      dataType = DataType.normal;
-    }
+    final dataType = DataType.parse(parsedText, listParsedData);
 
     listParsedData.add(ParsedData(parsedText, dataType));
 
