@@ -1,7 +1,7 @@
+/// Author: Lâm Thành Nhân (2023)
+
 import 'package:language_helper_generator/src/models/data_type.dart';
 import 'package:language_helper_generator/src/models/parsed_data.dart';
-
-/// Author: Lâm Thành Nhân (2023)
 
 /// String parser, supports multiple lines
 List<ParsedData> parseString(
@@ -22,7 +22,7 @@ List<ParsedData> parseString(
     text = rawText.replaceAll('\n', '');
   }
 
-  final List<ParsedData> listString = [];
+  final List<ParsedData> listParsedData = [];
   while (true) {
     final index = text.indexOf(tag);
     if (index == -1) break;
@@ -71,20 +71,15 @@ List<ParsedData> parseString(
         ? text.substring(startIndex, endIndex + 1).split('').reversed.join()
         : text.substring(startIndex, endIndex + 1);
 
-    // Ignore if there is variable inside the text
-    if (_isContainVariable(parsedText)) {
-      listString.add(ParsedData(parsedText, DataType.containsVariable));
-    } else {
-      listString.add(ParsedData(parsedText, DataType.normal));
-    }
+    // get data type
+    final dataType = DataType.parse(parsedText, listParsedData);
+
+    listParsedData.add(ParsedData(parsedText, dataType));
 
     text = text.substring(endIndex);
   }
 
-  return isReversed ? listString.reversed.toList() : listString.toList();
-}
-
-bool _isContainVariable(String text) {
-  final formated = text.replaceAll(r'\$', '');
-  return formated.contains('\$');
+  return isReversed
+      ? listParsedData.reversed.toList()
+      : listParsedData.toList();
 }
