@@ -124,7 +124,7 @@ const analysisLanguageData = {$languageData};
 
     desFile.writeAsStringSync(result);
 
-    Process.runSync('dart', ['format', desFile.path]);
+    Process.runSync('dart', ['format', desFile.absolute.path]);
 
     print('Created _language_data_abstract.g.dart');
   }
@@ -156,7 +156,7 @@ LanguageData languageData = {
 
     desFile.writeAsStringSync(result);
 
-    Process.runSync('dart', ['format', desFile.path]);
+    Process.runSync('dart', ['format', desFile.absolute.path]);
 
     print('Created `language_data.dart`');
   }

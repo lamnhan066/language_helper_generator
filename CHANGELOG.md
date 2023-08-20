@@ -1,3 +1,7 @@
+## 0.2.1
+
+* Update `dart format` parameter.
+
 ## 0.2.0
 
 * Automatically run `dart format` for the created files.
