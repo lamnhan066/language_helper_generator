@@ -38,7 +38,7 @@ class LanguageHelperGenerator {
       }
     }
 
-    print('Done.');
+    print('Parsed.');
 
     return result;
   }
@@ -63,6 +63,8 @@ class LanguageHelperGenerator {
     Map<String, List<ParsedData>> data, {
     String path = './lib',
   }) {
+    print('Creating _language_data_abstract.g.dart...');
+
     final desFile =
         File('$path/resources/language_helper/_language_data_abstract.g.dart');
     desFile.createSync(recursive: true);
@@ -120,9 +122,11 @@ part of 'language_data.dart';
 const analysisLanguageData = {$languageData};
 ''';
 
-    desFile.writeAsString(result);
+    desFile.writeAsStringSync(result);
 
-    print('Done.');
+    Process.runSync('dart', ['format', desFile.path]);
+
+    print('Created _language_data_abstract.g.dart');
   }
 
   /// Create `language_data.dart`
@@ -132,7 +136,10 @@ const analysisLanguageData = {$languageData};
     final desFile = File('$path/resources/language_helper/language_data.dart');
 
     // Return if the file already exists
-    if (desFile.existsSync()) return;
+    if (desFile.existsSync()) {
+      print('The `language_data.dart` existed => Done');
+      return;
+    }
 
     desFile.createSync(recursive: true);
 
@@ -147,7 +154,11 @@ LanguageData languageData = {
 };
 ''';
 
-    desFile.writeAsString(result);
+    desFile.writeAsStringSync(result);
+
+    Process.runSync('dart', ['format', desFile.path]);
+
+    print('Created `language_data.dart`');
   }
 
   /// This file should not be generated. Just add a doc to let users know
@@ -180,6 +191,6 @@ Future<void> languageHelperInitial() async {
 }
 ''';
 
-    desFile.writeAsString(data);
+    desFile.writeAsStringSync(data);
   }
 }

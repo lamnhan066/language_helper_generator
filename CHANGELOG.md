@@ -1,3 +1,7 @@
+## 0.2.0
+
+* Automatically run `dart format` for the created files.
+
 ## 0.1.6
 
 * Support changing the generated path when generating.
