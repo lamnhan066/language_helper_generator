@@ -20,6 +20,8 @@ void main() {
         final tr = 'This is a "test" text'.trP();
         final tr1 = "This is a 'test' text".trP();
 
+        final tr = 'This is a "\\'" text'.tr;
+        final tr = "This is a '\\"' text".tr;
       ''';
       final result = generator.parse(text);
 
@@ -34,6 +36,8 @@ void main() {
             '''"This is a 'test' text"''',
             """'This is a "test" text'""",
             '''"This is a 'test' text"''',
+            """'This is a "\\'" text'""",
+            '''"This is a '\\"' text"''',
           ]));
     });
 
@@ -58,6 +62,8 @@ void main() {
         final tr = 'This ' 'is a "test" ' 'text'.trP();
         final tr1 = "This ""is a 'test' ""text".trP();
 
+        final tr = 'This ' 'is a "\\'"' 'text'.tr;
+        final tr = "This " "is a '\\"'" "text".tr;
       ''';
       final result = generator.parse(text);
 
@@ -72,6 +78,8 @@ void main() {
             '''"This ""is a 'test' ""text"''',
             """'This is ' 'a "test" '            'text'""",
             '''"This is ' 'a 'test' '            'text"''',
+            """'This ' 'is a "\\'"' 'text'""",
+            '''"This " "is a '\\"'" "text"''',
           ]));
     });
 
@@ -89,6 +97,8 @@ void main() {
         final tr = languageHelper.translate('This is a "test" text');
         final tr1 = languageHelper.translate("This is a 'test' text");
 
+        final tr = languageHelper.translate('This is a "\\'" text');
+        final tr = languageHelper.translate("This is a '\\"' text");
       ''';
       final result = generator.parse(text);
 
@@ -103,6 +113,8 @@ void main() {
             '''"This is a 'test' text"''',
             """'This is a "test" text'""",
             '''"This is a 'test' text"''',
+            """'This is a "\\'" text'""",
+            '''"This is a '\\"' text"''',
           ]));
     });
 
@@ -127,6 +139,8 @@ void main() {
         final tr = languageHelper.translate('This ' 'is a "test" ' 'text');
         final tr1 = languageHelper.translate("This ""is a 'test' ""text");
 
+        final tr = languageHelper.translate('This ' 'is a "\\'"' 'text');
+        final tr = languageHelper.translate("This " "is a '\\"'" "text");
       ''';
       final result = generator.parse(text);
 
@@ -141,6 +155,8 @@ void main() {
             '''"This ""is a 'test' ""text"''',
             """'This is ' 'a "test" '            'text'""",
             '''"This is ' 'a 'test' '            'text"''',
+            """'This ' 'is a "\\'"' 'text'""",
+            '''"This " "is a '\\"'" "text"''',
           ]));
     });
 

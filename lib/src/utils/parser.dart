@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:language_helper_generator/src/models/data_type.dart';
 import 'package:language_helper_generator/src/models/parsed_data.dart';
 
@@ -33,7 +35,6 @@ List<ParsedData> parseString(
     int countQuote = 0;
     for (int i = startIndex; i < text.length; i++) {
       if (quote == null) {
-        // print(text[i]);
         if (text[i] == "'") {
           quote = "'";
         }
@@ -42,7 +43,8 @@ List<ParsedData> parseString(
         }
 
         // Ignore if there is something between the tag and the quote
-        if (quote != null && text.substring(startIndex, i).trim().isNotEmpty) {
+        final textBetween = text.substring(startIndex, i).trim();
+        if (quote != null && textBetween.isNotEmpty) {
           break;
         }
 
@@ -52,8 +54,18 @@ List<ParsedData> parseString(
         }
       } else {
         if (text[i] == quote) {
-          endIndex = i;
-          countQuote++;
+          // Get the character before the current quote
+          final previousChar = isReversed
+              ? text[min(i + 1, text.length - 1)]
+              : text[max(0, i - 1)];
+          // Is the character is the backslash
+          final isBackslashedQuote = previousChar == '\\';
+
+          // Ignore counting if it's a `\"` or `\'`
+          if (!isBackslashedQuote) {
+            endIndex = i;
+            countQuote++;
+          }
         }
 
         if (endIndex != null &&

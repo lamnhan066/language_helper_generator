@@ -1,3 +1,7 @@
+## 0.2.2
+
+* Support generating the text that containing the backslashed quote (`'This\'s'` and `"This\"s"`).
+
 ## 0.2.1
 
 * Update `dart format` parameter.
