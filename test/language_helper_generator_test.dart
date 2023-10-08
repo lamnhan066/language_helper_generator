@@ -25,6 +25,7 @@ void main() {
       ''';
       final result = generator.parse(text);
 
+      expect(result.length, equals(10));
       expect(
           result.map((e) => e.text),
           containsAll([
@@ -67,6 +68,7 @@ void main() {
       ''';
       final result = generator.parse(text);
 
+      expect(result.length, equals(10));
       expect(
           result.map((e) => e.text),
           containsAll([
@@ -102,6 +104,7 @@ void main() {
       ''';
       final result = generator.parse(text);
 
+      expect(result.length, equals(10));
       expect(
           result.map((e) => e.text),
           containsAll([
@@ -144,6 +147,7 @@ void main() {
       ''';
       final result = generator.parse(text);
 
+      expect(result.length, equals(10));
       expect(
           result.map((e) => e.text),
           containsAll([
@@ -176,6 +180,7 @@ void main() {
       ''';
       final result = generator.parse(text);
 
+      expect(result.length, equals(4));
       for (final parsed in result) {
         expect(
           parsed.type,

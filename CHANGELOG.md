@@ -1,3 +1,9 @@
+## 0.2.3
+
+* Fixes: Parser will returns an incorrect result if there is a variable using .tr.
+* Update tests.
+* Update homepage URL.
+
 ## 0.2.2
 
 * Support generating the text that containing the backslashed quote (`'This\'s'` and `"This\"s"`).

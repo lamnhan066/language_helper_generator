@@ -5,6 +5,9 @@ import 'package:language_helper_generator/src/models/parsed_data.dart';
 
 /// Author: Lâm Thành Nhân (2023)
 
+/// Supported quotes
+const supportedQuotes = ['"', "'"];
+
 /// String parser, supports multiple lines
 List<ParsedData> parseString(
   String rawText, {
@@ -33,35 +36,46 @@ List<ParsedData> parseString(
     int startIndex = index + tag.length;
     int? endIndex;
     int countQuote = 0;
+    bool ignore = false;
     for (int i = startIndex; i < text.length; i++) {
       if (quote == null) {
-        if (text[i] == "'") {
-          quote = "'";
-        }
-        if (text[i] == '"') {
-          quote = '"';
-        }
-
-        // Ignore if there is something between the tag and the quote
-        final textBetween = text.substring(startIndex, i).trim();
-        if (quote != null && textBetween.isNotEmpty) {
+        // If the char next to the tag is not supported quotes and space
+        // then it's not a text we need to parse.
+        if (!supportedQuotes.contains(text[i]) && text[i] != ' ') {
+          text = text.substring(i);
+          ignore = true;
           break;
         }
 
+        // Get the first quote.
+        if (supportedQuotes.contains(text[i])) {
+          quote = text[i];
+        }
+
+        // Ignore if there is something between the tag and the quote.
+        final textBetween = text.substring(startIndex, i).trim();
+        if (quote != null && textBetween.isNotEmpty) {
+          text = text.substring(i);
+          ignore = true;
+          break;
+        }
+
+        // Set the start index of quote.
         if (quote != null) {
           countQuote++;
           startIndex = i;
         }
       } else {
         if (text[i] == quote) {
-          // Get the character before the current quote
+          // Get the character before the current quote.
           final previousChar = isReversed
               ? text[min(i + 1, text.length - 1)]
               : text[max(0, i - 1)];
-          // Is the character is the backslash
+
+          // Is the character is the backslash.
           final isBackslashedQuote = previousChar == '\\';
 
-          // Ignore counting if it's a `\"` or `\'`
+          // Ignore counting if it's a `\"` or `\'`.
           if (!isBackslashedQuote) {
             endIndex = i;
             countQuote++;
@@ -77,13 +91,17 @@ List<ParsedData> parseString(
       }
     }
 
+    // Ignore the current loop and move to the next loop.
+    if (ignore) continue;
+
+    // Stop if there is no matched quote.
     if (endIndex == null) break;
 
     final parsedText = isReversed
         ? text.substring(startIndex, endIndex + 1).split('').reversed.join()
         : text.substring(startIndex, endIndex + 1);
 
-    // Ignore if there is variable inside the text
+    // Ignore if there is variable inside the text.
     if (_isContainVariable(parsedText)) {
       listString.add(ParsedData(parsedText, DataType.containsVariable));
     } else {
