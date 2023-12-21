@@ -1,4 +1,4 @@
-/// Author: Lâm Thành Nhân (2023)
+// Author: Lâm Thành Nhân (2023); Github: @lamnhan066
 
 import 'dart:math';
 
