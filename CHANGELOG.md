@@ -1,3 +1,10 @@
+## 0.3.0
+
+* Fix issue with the same text but has different quote.
+* Add: parse text that has a `r` raw text tag.
+* Add: convert to single quote when possible.
+* Update tests.
+
 ## 0.2.3
 
 * Fixes: Parser will returns an incorrect result if there is a variable using .tr.
