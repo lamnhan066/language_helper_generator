@@ -188,5 +188,31 @@ void main() {
         );
       }
     });
+
+    test('Parse dupplicated text with different quote', () {
+      const text = '''
+        final tr = 'This is a dupplicated text'.tr;
+        final tr1 = "This is a dupplicated text".tr;
+      ''';
+
+      final result = generator.parse(text);
+
+      expect(result.length, 2);
+      expect(result.first, equals(result.last));
+    });
+
+    test('Parse raw text', () {
+      const text = '''
+        final tr = r'This is a raw text'.tr;
+        final tr1 = r"This is another raw text".tr;
+      ''';
+
+      final result = generator.parse(text);
+
+      expect(result.length, 2);
+      for (var element in result) {
+        expect(element.hasRawTag, equals(true));
+      }
+    });
   });
 }
