@@ -1,9 +1,11 @@
+/// Author: Lâm Thành Nhân (2023)
+
 import 'dart:math';
 
-import 'package:language_helper_generator/src/models/data_type.dart';
 import 'package:language_helper_generator/src/models/parsed_data.dart';
+import 'package:language_helper_generator/src/models/visitor.dart';
 
-/// Author: Lâm Thành Nhân (2023)
+import 'visitor.dart';
 
 /// Supported quotes
 const supportedQuotes = ['"', "'"];
@@ -97,24 +99,33 @@ List<ParsedData> parseString(
     // Stop if there is no matched quote.
     if (endIndex == null) break;
 
-    final parsedText = isReversed
-        ? text.substring(startIndex, endIndex + 1).split('').reversed.join()
-        : text.substring(startIndex, endIndex + 1);
+    List<Visitor> visitors = [
+      BaseTextAndRawTagVisitor(),
+      TryToConvertToSingleQuoteVisitor(),
+      ContainsVariableVisitor(),
+    ];
 
-    // Ignore if there is variable inside the text.
-    if (_isContainVariable(parsedText)) {
-      listString.add(ParsedData(parsedText, DataType.containsVariable));
-    } else {
-      listString.add(ParsedData(parsedText, DataType.normal));
+    ParsedData parsedData = ParsedData.empty;
+    for (final visitor in visitors) {
+      final value = visitor.visit(
+        text: text,
+        parsedData: parsedData,
+        startIndex: startIndex,
+        endIndex: endIndex,
+        isReversed: isReversed,
+      );
+      parsedData = value.parsedData;
+
+      if (value.stop) break;
     }
 
-    text = text.substring(endIndex);
+    if (!parsedData.isEmpty) {
+      listString.add(parsedData);
+      text = text.substring(startIndex + parsedData.text.length);
+    } else {
+      text = text.substring(endIndex + 1);
+    }
   }
 
   return isReversed ? listString.reversed.toList() : listString.toList();
-}
-
-bool _isContainVariable(String text) {
-  final formated = text.replaceAll(r'\$', '');
-  return formated.contains('\$');
 }
