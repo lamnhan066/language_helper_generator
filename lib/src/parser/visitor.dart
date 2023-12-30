@@ -1,106 +1,81 @@
-import '../models/data_type.dart';
-import '../models/parsed_data.dart';
-import '../models/visitor.dart';
+import 'package:analyzer/dart/ast/ast.dart';
+import 'package:analyzer/dart/ast/visitor.dart';
+import 'package:language_helper_generator/src/models/data_type.dart';
+import 'package:language_helper_generator/src/models/parsed_data.dart';
 
-class BaseTextAndRawTagVisitor implements Visitor {
-  /// Parse the base parsed text.
-  const BaseTextAndRawTagVisitor();
+class StringLiteralVisitor extends RecursiveAstVisitor<void> {
+  final List<ParsedData> parsedData = [];
 
   @override
-  VisitorValue visit({
-    required ParsedData parsedData,
-    required String text,
-    required int startIndex,
-    required int endIndex,
-    required bool isReversed,
-  }) {
-    String parsedText = isReversed
-        ? text.substring(startIndex, endIndex + 1).split('').reversed.join()
-        : text.substring(startIndex, endIndex + 1);
-
-    bool isRawText = false;
-    if (isReversed) {
-      if (endIndex + 1 < text.length && text[endIndex + 1] == 'r') {
-        isRawText = true;
-      }
-    } else {
-      if (startIndex - 1 > 0 && text[startIndex - 1] == 'r') {
-        isRawText = true;
+  void visitPropertyAccess(PropertyAccess node) {
+    if (node.propertyName.name == 'tr' && node.target != null) {
+      ParsedData? parsedData = _parseExpression(node.target!);
+      if (parsedData != null) {
+        this.parsedData.add(parsedData);
       }
     }
 
-    return VisitorValue(
-      parsedData: parsedData.copyWith(
-        text: parsedText,
-        hasRawTag: isRawText,
-      ),
-    );
+    super.visitPropertyAccess(node);
   }
-}
-
-class TryToConvertToSingleQuoteVisitor implements Visitor {
-  TryToConvertToSingleQuoteVisitor();
 
   @override
-  VisitorValue visit({
-    required ParsedData parsedData,
-    required String text,
-    required int startIndex,
-    required int endIndex,
-    required bool isReversed,
-  }) {
-    String parsedText = parsedData.text;
+  void visitMethodInvocation(MethodInvocation node) {
+    if (node.methodName.name == 'translate' && node.target != null) {
+      final first = node.argumentList.arguments.first;
 
-    bool ableToConvert = true;
-    if (parsedText.startsWith('"')) {
-      int i = 1;
-      while (i < parsedText.length - 2) {
-        if (parsedText[i] == "'" && parsedText[i - 1] != r'\') {
-          ableToConvert = false;
+      ParsedData? parsedData = _parseExpression(first);
+      if (parsedData != null) {
+        this.parsedData.add(parsedData);
+      }
+    }
+
+    if (['trT', 'trF', 'trP'].contains(node.methodName.name) &&
+        node.target != null) {
+      ParsedData? parsedData = _parseExpression(node.target!);
+      if (parsedData != null) {
+        this.parsedData.add(parsedData);
+      }
+    }
+    super.visitMethodInvocation(node);
+  }
+
+  ParsedData? _parseExpression(Expression node) {
+    if (node is AdjacentStrings) {
+      bool isContainsVariable = false;
+      for (var stringNode in node.strings) {
+        final parsedData = _parseStringLiteral(stringNode);
+        if (parsedData?.type == DataType.containsVariable) {
+          isContainsVariable = true;
+          break;
         }
-        i++;
       }
+
+      return _parseStringLiteral(node)?.copyWith(
+        type: isContainsVariable ? DataType.containsVariable : null,
+      );
+    } else if (node is StringLiteral) {
+      return _parseStringLiteral(node);
     }
-
-    if (ableToConvert) {
-      if (parsedText.startsWith('"""')) {
-        parsedText = "'''${parsedText.substring(3, parsedText.length - 3)}'''";
-      } else {
-        parsedText = "'${parsedText.substring(1, parsedText.length - 1)}'";
-      }
-    }
-
-    return VisitorValue(
-      parsedData: parsedData.copyWith(text: parsedText),
-    );
-  }
-}
-
-class ContainsVariableVisitor implements Visitor {
-  const ContainsVariableVisitor();
-
-  @override
-  VisitorValue visit({
-    required ParsedData parsedData,
-    required String text,
-    required int startIndex,
-    required int endIndex,
-    required bool isReversed,
-  }) {
-    return VisitorValue(
-      parsedData: parsedData.copyWith(
-        type: _isContainVariable(parsedData.text)
-            ? DataType.containsVariable
-            : DataType.normal,
-      ),
-    );
+    return null;
   }
 
-  bool _isContainVariable(String text) {
-    // Raw text does not need to be checked.
-    if (text.startsWith('r')) return false;
-
-    final formated = text.replaceAll(r'\$', '');
-    return formated.contains('\$');
+  ParsedData? _parseStringLiteral(StringLiteral node) {
+    ParsedData parsedData = ParsedData(
+      text: node.toSource(),
+      type: DataType.normal,
+      noFormatedText: node.toSource(),
+    );
+    if (node is StringInterpolation) {
+      parsedData = parsedData.copyWith(
+        type: DataType.containsVariable,
+        noFormatedText: node.stringValue,
+      );
+      return parsedData;
+    } else {
+      parsedData = parsedData.copyWith(
+        noFormatedText: node.stringValue,
+      );
+    }
+    return parsedData;
   }
 }

@@ -7,35 +7,31 @@ class ParsedData {
   /// Type of text.
   final DataType type;
 
-  /// Have a `r` (raw text) tag.
-  final bool hasRawTag;
-
-  /// Get full text (includes raw text tag).
-  String get fullText {
-    String r = hasRawTag ? 'r' : '';
-    return '$r$text';
-  }
+  /// No formated text.
+  final String noFormatedText;
 
   /// Equals to `parsedText.text == ''`.
   bool get isEmpty => text == '';
 
-  ParsedData(this.text, this.type, [this.hasRawTag = false]);
+  ParsedData(
+      {required this.text, required this.type, required this.noFormatedText});
 
-  static ParsedData get empty => ParsedData('', DataType.normal);
+  static ParsedData get empty =>
+      ParsedData(text: '', type: DataType.normal, noFormatedText: '');
 
   @override
   String toString() =>
-      'ParsedData(text: $text, type: $type, isRawText: $hasRawTag)';
+      'ParsedData(text: $text, type: $type, noFormatedText: $noFormatedText)';
 
   ParsedData copyWith({
     String? text,
     DataType? type,
-    bool? hasRawTag,
+    String? noFormatedText,
   }) {
     return ParsedData(
-      text ?? this.text,
-      type ?? this.type,
-      hasRawTag ?? this.hasRawTag,
+      text: text ?? this.text,
+      type: type ?? this.type,
+      noFormatedText: noFormatedText ?? this.noFormatedText,
     );
   }
 
@@ -43,9 +39,11 @@ class ParsedData {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is ParsedData && other.text == text && other.type == type;
+    return other is ParsedData &&
+        other.type == type &&
+        other.noFormatedText == noFormatedText;
   }
 
   @override
-  int get hashCode => text.hashCode ^ type.hashCode;
+  int get hashCode => type.hashCode ^ noFormatedText.hashCode;
 }

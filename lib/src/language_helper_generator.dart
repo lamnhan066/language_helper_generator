@@ -45,15 +45,7 @@ class LanguageHelperGenerator {
 
   List<ParsedData> parse(String text) {
     List<ParsedData> result = [];
-    result.addAll(parseString(text, endingTag: '.trT('));
-    result.addAll(parseString(text, endingTag: '.trF('));
-    result.addAll(parseString(text, endingTag: '.trP('));
-    result.addAll(parseString(text, endingTag: '.tr;'));
-    result.addAll(parseString(text, endingTag: '.tr}'));
-    result.addAll(parseString(text, endingTag: '.tr)'));
-    result.addAll(parseString(text, endingTag: '.tr,'));
-    result.addAll(parseString(text, endingTag: '.tr '));
-    result.addAll(parseString(text, startingTag: '.translate('));
+    result.addAll(parses(text));
 
     return result;
   }
@@ -70,7 +62,7 @@ class LanguageHelperGenerator {
     desFile.createSync(recursive: true);
 
     StringBuffer languageData = StringBuffer();
-    final listAllUniqueText = <String>[];
+    final listAllUniqueText = <ParsedData>{};
     data.forEach((key, values) {
       // Comment file path when move to new file
       languageData.writeln('');
@@ -92,16 +84,16 @@ class LanguageHelperGenerator {
           print(
               '>> Path: $key => Text: ${parsed.text} => Reason: ${parsed.type.text}');
         } else {
-          if (listAllUniqueText.contains(parsed.text)) {
+          if (listAllUniqueText.contains(parsed)) {
             needsComment = '// ';
             needsEndComment = '  // Duplicated';
           } else {
-            listAllUniqueText.add(parsed.text);
+            listAllUniqueText.add(parsed);
           }
         }
 
         languageData.writeln(
-          '  $needsComment${parsed.fullText}: ${parsed.fullText},$needsEndComment',
+          '  $needsComment${parsed.text}: ${parsed.text},$needsEndComment',
         );
       }
     });
