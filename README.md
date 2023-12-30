@@ -6,19 +6,7 @@
 
 * This runner will get all the texts that using language_helper extensions (`tr`, `trP`, `trT`, `trF`) and `translate` method then creating a base structure for `LanguageData`.
 
-* Not using `build_runner` so it's very fast.
-
-## Supports
-
-* Parses single, double quotes text: `'single quote'`, `"double quotes"`.
-* Parses a text that contains raw tag: `r'raw tag'`.
-* Parses a text that has mutiple lines: `'this is a' 'multiple lines' 'text'`.
-* Parses a text that contains variable but automatically commented: `'this is a $variable text'`.
-* Automatically converts to the single quote when possible: `"double quote"` to `'single quote`.
-
-## Limitations
-
-The package currently does not support triple quotes.
+* Uses Dart Analyzer and doesn't depend on `build_runner` so it's very fast and reliable.
 
 ## Usage
 

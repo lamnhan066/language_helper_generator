@@ -1,3 +1,8 @@
+## 0.4.1
+
+* Completely rewritten using Dart Analyzer to improve reliability.
+* Update tests.
+
 ## 0.3.0
 
 * Fix issue with the same text but has different quote.
