@@ -34,12 +34,17 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+  meta: ^1.10.0
+  language_helper: ^0.8.0
+
+dependency_overrides:
+  meta: ^1.11.0
+  language_helper_generator:
+    path: ../
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  language_helper_generator:
-    path: ../
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
