@@ -212,7 +212,7 @@ void main() {
       }
     });
 
-    test('Try to convert to single quote', () {
+    test('Multiple kind of one text', () {
       const text = '''
         final tr = r"This is the same text".tr;
         final tr1 = r'This is the same text'.tr;
@@ -223,6 +223,36 @@ void main() {
 
       final result = generator.parse(text);
       expect(result.toSet().length, equals(1));
+    });
+
+    test('Triple-quoted', () {
+      const text = '''
+        final tr = r"""This is the same text""".tr;
+        final tr1 = """
+        This is the same text
+        """.tr;
+        final tr2 = """This is a \$variable text""".tr;
+        final tr3 = r"""This is a
+          multi-lines text
+          """.tr;
+      ''';
+
+      final result = generator.parse(text);
+      expect(result.toSet().length, equals(4));
+      print(result[2]);
+      expect(result[2].type, equals(DataType.containsVariable));
+      expect(
+        result.map((e) => e.noFormatedText).toList(),
+        equals([
+          'This is the same text',
+          '        This is the same text\n'
+              '        ',
+          '"""This is a \$variable text"""',
+          'This is a\n'
+              '          multi-lines text\n'
+              '          '
+        ]),
+      );
     });
   });
 }
