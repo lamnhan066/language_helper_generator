@@ -27,18 +27,18 @@ void main() {
 
       expect(result.length, equals(10));
       expect(
-          result.map((e) => e.text),
-          containsAll([
-            """'This is a "test" text'""",
-            '''"This is a 'test' text"''',
-            """'This is a "test" text'""",
-            '''"This is a 'test' text"''',
-            """'This is a "test" text'""",
-            '''"This is a 'test' text"''',
-            """'This is a "test" text'""",
-            '''"This is a 'test' text"''',
-            """'This is a "\\'" text'""",
-            '''"This is a '\\"' text"''',
+          result.map((e) => e.noFormatedText).toList(),
+          equals([
+            """This is a "test" text""",
+            '''This is a 'test' text''',
+            """This is a "test" text""",
+            '''This is a 'test' text''',
+            """This is a "test" text""",
+            '''This is a 'test' text''',
+            """This is a "test" text""",
+            '''This is a 'test' text''',
+            """This is a "'" text""",
+            '''This is a '"' text''',
           ]));
     });
 
@@ -46,8 +46,8 @@ void main() {
       const text = '''
         final tr = 'This is ' 'a "test" '
             'text'.tr;
-        final tr1 = "This is ' 'a 'test' '
-            'text".tr;
+        final tr1 = "This is ' 'a 'test' "
+          "text".tr;
 
         final tr = 'This is ' 'a "test" text'
             .trF();
@@ -70,18 +70,18 @@ void main() {
 
       expect(result.length, equals(10));
       expect(
-          result.map((e) => e.text),
-          containsAll([
-            """'This is a "test" '            'text'""",
-            '''"This "            "is a 'test' text"''',
-            """'This is ' 'a "test" text'""",
-            '''"This is a "            "'test' text"''',
-            """'This ' 'is a "test" ' 'text'""",
-            '''"This ""is a 'test' ""text"''',
-            """'This is ' 'a "test" '            'text'""",
-            '''"This is ' 'a 'test' '            'text"''',
-            """'This ' 'is a "\\'"' 'text'""",
-            '''"This " "is a '\\"'" "text"''',
+          result.map((e) => e.noFormatedText).toList(),
+          equals([
+            'This is a "test" text',
+            'This is \' \'a \'test\' text',
+            'This is a "test" text',
+            'This is a \'test\' text',
+            'This is a "test" text',
+            'This is a \'test\' text',
+            'This is a "test" text',
+            'This is a \'test\' text',
+            'This is a "\'"text',
+            'This is a \'"\'text'
           ]));
     });
 
@@ -106,18 +106,18 @@ void main() {
 
       expect(result.length, equals(10));
       expect(
-          result.map((e) => e.text),
-          containsAll([
-            """'This is a "test" text'""",
-            '''"This is a 'test' text"''',
-            """'This is a "test" text'""",
-            '''"This is a 'test' text"''',
-            """'This is a "test" text'""",
-            '''"This is a 'test' text"''',
-            """'This is a "test" text'""",
-            '''"This is a 'test' text"''',
-            """'This is a "\\'" text'""",
-            '''"This is a '\\"' text"''',
+          result.map((e) => e.noFormatedText).toList(),
+          equals([
+            'This is a "test" text',
+            'This is a \'test\' text',
+            'This is a "test" text',
+            'This is a \'test\' text',
+            'This is a "test" text',
+            'This is a \'test\' text',
+            'This is a "test" text',
+            'This is a \'test\' text',
+            'This is a "\'" text',
+            'This is a \'"\' text'
           ]));
     });
 
@@ -125,8 +125,7 @@ void main() {
       const text = '''
         final tr = languageHelper.translate('This is ' 'a "test" '
             'text');
-        final tr1 = languageHelper.translate("This is ' 'a 'test' '
-            'text");
+        final tr1 = languageHelper.translate("This is ' 'a 'test' 'text");
 
         final tr = languageHelper.translate('This is ' 'a "test" text'
             );
@@ -149,18 +148,18 @@ void main() {
 
       expect(result.length, equals(10));
       expect(
-          result.map((e) => e.text),
-          containsAll([
-            """'This is a "test" '            'text'""",
-            '''"This "            "is a 'test' text"''',
-            """'This is ' 'a "test" text'""",
-            '''"This is a "            "'test' text"''',
-            """'This ' 'is a "test" ' 'text'""",
-            '''"This ""is a 'test' ""text"''',
-            """'This is ' 'a "test" '            'text'""",
-            '''"This is ' 'a 'test' '            'text"''',
-            """'This ' 'is a "\\'"' 'text'""",
-            '''"This " "is a '\\"'" "text"''',
+          result.map((e) => e.noFormatedText).toList(),
+          equals([
+            'This is a "test" text',
+            'This is \' \'a \'test\' \'text',
+            'This is a "test" text',
+            'This is a \'test\' text',
+            'This is a "test" text',
+            'This is a \'test\' text',
+            'This is a "test" text',
+            'This is a \'test\' text',
+            'This is a "\'"text',
+            'This is a \'"\'text'
           ]));
     });
 
@@ -169,24 +168,22 @@ void main() {
         final tr = languageHelper.translate('This is ' 'a "test" '
             'text with \$variable');
         final tr1 = languageHelper.translate('This is ' 'a "test" '
-            'text with \${variable.1}');
+            'text with \${variable}');
         final tr2 = languageHelper.translate(\$variable);
         
         final tr3 = 'This is ' 'a "test" '
             'text with \$variable'.tr;
         final tr4 = 'This is ' 'a "test" '
-            'text with \${variable.1}'.tr;
+            'text with \${variable.a}'.tr;
         final tr5 = variable.tr;
       ''';
       final result = generator.parse(text);
 
       expect(result.length, equals(4));
-      for (final parsed in result) {
-        expect(
-          parsed.type,
-          equals(DataType.containsVariable),
-        );
-      }
+      expect(result[0].type, equals(DataType.containsVariable));
+      expect(result[1].type, equals(DataType.containsVariable));
+      expect(result[2].type, equals(DataType.containsVariable));
+      expect(result[3].type, equals(DataType.containsVariable));
     });
 
     test('Parse dupplicated text with different quote', () {
@@ -211,8 +208,21 @@ void main() {
 
       expect(result.length, 2);
       for (var element in result) {
-        expect(element.hasRawTag, equals(true));
+        expect(element.text, startsWith('r'));
       }
+    });
+
+    test('Try to convert to single quote', () {
+      const text = '''
+        final tr = r"This is the same text".tr;
+        final tr1 = r'This is the same text'.tr;
+        final tr2 = r"This is the " "same text".tr;
+        final tr3 = r"This is " "the "
+          "same text".tr;
+      ''';
+
+      final result = generator.parse(text);
+      expect(result.toSet().length, equals(1));
     });
   });
 }
