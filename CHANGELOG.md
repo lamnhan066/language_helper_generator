@@ -1,3 +1,7 @@
+## 0.4.2
+
+* Update the `analyzer` version in the dependencies to support the current `flutter_test`.
+
 ## 0.4.1
 
 * Completely rewritten using Dart Analyzer to improve reliability.
