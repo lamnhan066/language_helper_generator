@@ -1,13 +1,43 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:args/args.dart';
+import 'package:language_helper_generator/src/generators/json_generator.dart'
+    as j;
 import 'package:language_helper_generator/src/models/data_type.dart';
 import 'package:language_helper_generator/src/models/parsed_data.dart';
 import 'package:language_helper_generator/src/parser/parser.dart';
 import 'package:language_helper_generator/src/utils/list_all_files.dart';
 
 class LanguageHelperGenerator {
-  Map<String, List<ParsedData>>? generate([String path = './lib/']) {
+  void generate(List<String> args) {
+    final parser = ArgParser()
+      ..addOption(
+        'path',
+        abbr: 'p',
+        help:
+            'Path to the main folder that you want to to create a base language. Default is `./lib`.',
+        valueHelp: './lib',
+        defaultsTo: './lib',
+      )
+      ..addFlag(
+        'json',
+        abbr: 'j',
+        help: 'Export to json format',
+      );
+    final argResult = parser.parse(args);
+    final path = argResult['path'] as String;
+    final result = _generate(path);
+    if (result == null) return;
+    if (argResult['json']) {
+      _exportJson(result, path);
+    } else {
+      _createLanguageDataAbstractFile(result, path: path);
+      _createLanguageDataFile(path);
+    }
+  }
+
+  Map<String, List<ParsedData>>? _generate([String path = './lib/']) {
     print('Parsing language data from directory: $path...');
 
     final dir = Directory(path);
@@ -51,7 +81,7 @@ class LanguageHelperGenerator {
   }
 
   /// Create `_language_data_abstract,dart`
-  void createLanguageDataAbstractFile(
+  void _createLanguageDataAbstractFile(
     Map<String, List<ParsedData>> data, {
     String path = './lib',
   }) {
@@ -63,6 +93,7 @@ class LanguageHelperGenerator {
 
     StringBuffer languageData = StringBuffer();
     final listAllUniqueText = <ParsedData>{};
+    int i = 0;
     data.forEach((key, values) {
       // Comment file path when move to new file
       languageData.writeln('');
@@ -71,6 +102,7 @@ class LanguageHelperGenerator {
       languageData.writeln('  /// Path: $key');
       languageData.writeln(
           '  ///===========================================================================');
+      languageData.writeln("'@path_${i++}': '$key',");
 
       // Map should contains unique key => comment all duppicated keys
       for (final parsed in values) {
@@ -121,7 +153,7 @@ const analysisLanguageData = {$languageData};
   }
 
   /// Create `language_data.dart`
-  void createLanguageDataFile([String path = './lib']) {
+  void _createLanguageDataFile([String path = './lib']) {
     print('Creating `language_data.dart`...');
 
     final desFile = File('$path/resources/language_helper/language_data.dart');
@@ -150,6 +182,10 @@ LanguageData languageData = {
     Process.runSync('dart', ['format', desFile.absolute.path]);
 
     print('Created `language_data.dart`');
+  }
+
+  void _exportJson(Map<String, List<ParsedData>> data, String path) {
+    j.exportJson(data, path);
   }
 
   /// This file should not be generated. Just add a doc to let users know
