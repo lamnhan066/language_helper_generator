@@ -1,3 +1,7 @@
+## 0.5.0-rc.1
+
+* Add the export as JSON feature.
+
 ## 0.4.2
 
 * Update the `analyzer` version in the dependencies to support the current `flutter_test`.

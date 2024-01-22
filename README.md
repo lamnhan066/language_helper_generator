@@ -29,6 +29,27 @@ If you want to change the generating path, you can add this option:
 dart run language_helper_generator --path=./example/lib
 ```
 
+If you want to export as Json format to use as `LanguageDataProvider.asset()` and `LanguageDataProvider.network()`, you need to add this flag:
+
+```cmd
+dart run language_helper_generator --json
+```
+
+## Generated Data
+
+### With the `json` flag
+
+``` txt
+|-- .lib
+|   |--- resources
+|   |    |--- language_helper
+|   |    |    |--- codes.json   ; List of supported language code
+|   |    |    |--- languages
+|   |    |    |    |--- en.json ; Each language will be stored in 1 files
+```
+
+### Without the `json` flag
+
 This command will generate a structure base files with this format:
 
 ``` txt
@@ -46,22 +67,22 @@ In the `_language_data_abstract.g.dart`, data will be shown like this:
 
 ``` dart
 const analysisLanguageData = {
-  ///==============================================
-  /// Path: page_1/page_1.dart
-  ///==============================================
-  r'This is a "quoted" string 1': r'This is a "quoted" string 1',
-  'This is a string with @{num} parameters 1': 'This is a string with @{num} parameters 1',
-  "This is a 'quoted' string 1": "This is a 'quoted' string 1",
+  ///===========================================================================
+  /// Path: ./lib/page_1/page_1.dart
+  ///===========================================================================
+  '@path_0': './lib/page_1/page_1.dart',
   "Hello, world! 1": "Hello, world! 1",
-  // 'This text contains variable $text7': 'This text contains variable $text7',  // Commented reason: Contains variable
+  'This is a "quoted" string 1': 'This is a "quoted" string 1',
+  "This is a 'quoted' string 1": "This is a 'quoted' string 1",
+  // 'This text contains variable $text7': 'This text contains variable $text7',  // Contains variable
 
-  ///==============================================
-  /// Path: page_1/page_2.dart
-  ///==============================================
-  // 'This is a "quoted" string 1': 'This is a "quoted" string 1',  // Commented reason: Duplicated
-  'This is a string with @{num} parameters 2': 'This is a string with @{num} parameters 2',
+  ///===========================================================================
+  /// Path: ./lib/page_1/page_2.dart
+  ///===========================================================================
+  '@path_1': './lib/page_1/page_2.dart',
+  // "Hello, world! 1": "Hello, world! 1",  // Duplicated
+  // 'This is a "quoted" string 1': 'This is a "quoted" string 1',  // Duplicated
   "This is a 'quoted' string 2": "This is a 'quoted' string 2",
-  // "Hello, world! 1": "Hello, world! 1",  // Commented reason: Duplicated
 }
 ```
 
