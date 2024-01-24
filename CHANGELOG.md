@@ -1,3 +1,8 @@
+## 0.5.0-rc.2
+
+* Change the default generated path of JSON to `assets/language_helper`.
+* Change the default generated language file to `_generated.json`
+
 ## 0.5.0-rc.1
 
 * Add the export as JSON feature.

@@ -40,12 +40,11 @@ dart run language_helper_generator --json
 ### With the `json` flag
 
 ``` txt
-|-- .lib
-|   |--- resources
-|   |    |--- language_helper
-|   |    |    |--- codes.json   ; List of supported language code
-|   |    |    |--- languages
-|   |    |    |    |--- en.json ; Each language will be stored in 1 files
+|-- assets
+|   |--- language_helper
+|   |    |--- codes.json   ; List of supported language code
+|   |    |--- languages
+|   |    |    |--- _generated.json ; Each language will be stored in 1 files
 ```
 
 ### Without the `json` flag
