@@ -16,7 +16,7 @@ void exportJson(Map<String, List<ParsedData>> data, String path) {
 void _exportJsonCodes(Map<String, List<ParsedData>> data, String path) {
   print('Creating codes.json...');
 
-  final desFile = File('$path/resources/language_helper/json/codes.json');
+  final desFile = File('$path/language_helper/codes.json');
   desFile.createSync(recursive: true);
 
   JsonEncoder encoder = JsonEncoder.withIndent('  ');
@@ -28,8 +28,8 @@ void _exportJsonCodes(Map<String, List<ParsedData>> data, String path) {
 void _exportJsonLanguages(Map<String, List<ParsedData>> data, String path) {
   print('Creating languages json files...');
 
-  final desPath = '$path/resources/language_helper/json/languages/';
-  final desFile = File('${desPath}en.json');
+  final desPath = '$path/language_helper/languages/';
+  final desFile = File('${desPath}_generated.json');
   desFile.createSync(recursive: true);
   Map<String, String> map = {};
   for (int i = 0; i < data.length; i++) {

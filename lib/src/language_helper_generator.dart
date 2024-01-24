@@ -20,6 +20,13 @@ class LanguageHelperGenerator {
         valueHelp: './lib',
         defaultsTo: './lib',
       )
+      ..addOption(
+        'output',
+        abbr: 'o',
+        help:
+            'Path to the folder that you want to save the output. Default --no-json: `path`; Default --json: ./assets',
+        valueHelp: 'Default --no-json: `path`; Default --json: ./assets',
+      )
       ..addFlag(
         'json',
         abbr: 'j',
@@ -27,12 +34,13 @@ class LanguageHelperGenerator {
       );
     final argResult = parser.parse(args);
     final path = argResult['path'] as String;
+    String? output = argResult['output'];
     final result = _generate(path);
     if (result == null) return;
     if (argResult['json']) {
-      _exportJson(result, path);
+      _exportJson(result, output ?? './assets');
     } else {
-      _createLanguageDataAbstractFile(result, path: path);
+      _createLanguageDataAbstractFile(result, path: output ?? path);
       _createLanguageDataFile(path);
     }
   }
