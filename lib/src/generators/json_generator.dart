@@ -17,6 +17,12 @@ void _exportJsonCodes(Map<String, List<ParsedData>> data, String path) {
   print('Creating codes.json...');
 
   final desFile = File('$path/language_helper/codes.json');
+
+  if (desFile.existsSync()) {
+    print('The codes.json existed. Do not re-create.');
+    return;
+  }
+
   desFile.createSync(recursive: true);
 
   JsonEncoder encoder = JsonEncoder.withIndent('  ');
