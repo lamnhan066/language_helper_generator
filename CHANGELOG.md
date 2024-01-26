@@ -1,3 +1,51 @@
+## 0.5.0-rc.3
+
+* Change the default path of the Dart Map generator:
+  * Before:
+
+  ```txt
+  |-- .lib
+  |   |--- resources
+  |   |    |--- language_helper
+  |   |    |    |--- _language_data_abstract.g.dart   ; This file will be overwritten when generating
+  |   |    |    |--- language_data.dart
+  ```
+
+  * Now:
+
+  ```txt
+  |-- .lib
+  |   |--- resources
+  |   |    |--- language_helper
+  |   |    |    |--- language_data.dart
+  |   |    |    |--- languages
+  |   |    |    |    |--- _generated.dart   ; This will be overwritten when re-generating
+  ```
+
+* Change the default path of the Dart Map generator:
+  * Before:
+
+  ```txt
+  |-- assets
+  |   |--- language_helper
+  |   |    |--- codes.json   ; List of supported language code
+  |   |    |--- languages
+  |   |    |    |--- _generated.json ; Each language will be stored in 1 files
+  ```
+
+  * Now:
+
+  ```txt
+  |-- assets
+  |   |--- resources
+  |   |    |--- language_helper
+  |   |    |    |--- codes.json
+  |   |    |    |--- languages
+  |   |    |    |   |--- _generated.json ; This file will be overwritten when re-generating
+  ```
+
+* JSON generator will not overwrite the `codes.json` when re-generating.
+
 ## 0.5.0-rc.2
 
 * Change the default generated path of JSON to `assets/language_helper`.

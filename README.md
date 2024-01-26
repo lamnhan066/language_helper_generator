@@ -26,7 +26,7 @@ dart run language_helper_generator
 If you want to change the generating path, you can add this option:
 
 ``` cmd
-dart run language_helper_generator --path=./example/lib
+dart run language_helper_generator --path=./example/lib/resources
 ```
 
 If you want to export as Json format to use as `LanguageDataProvider.asset()` and `LanguageDataProvider.network()`, you need to add this flag:
@@ -39,30 +39,34 @@ dart run language_helper_generator --json
 
 ### With the `json` flag
 
+This command will generate a structure base files with this format (--path=".assets" by default):
+
 ``` txt
 |-- assets
-|   |--- language_helper
-|   |    |--- codes.json   ; List of supported language code
-|   |    |--- languages
-|   |    |    |--- _generated.json ; Each language will be stored in 1 files
+|   |--- resources
+|   |    |--- language_helper
+|   |    |    |--- codes.json
+|   |    |    |--- languages
+|   |    |    |   |--- _generated.json ; This file will be overwritten when re-generating
 ```
 
 ### Without the `json` flag
 
-This command will generate a structure base files with this format:
+This command will generate a structure base files with this format (--path=".lib/resources" by default):
 
 ``` txt
-|-- .lib
+|-- lib
 |   |--- resources
 |   |    |--- language_helper
-|   |    |    |--- _language_data_abstract.g.dart
 |   |    |    |--- language_data.dart
+|   |    |    |--- languages
+|   |    |    |    |--- _generated.dart   ; This file will be overwritten when re-generating
 ```
 
-* `_language_data_abstract.g.dart`: Contains your base language from your all `.dart` files. This file will be re-generated when you run the command.
+* `_generated.dart`: Contains your base language from your all `.dart` files. This file will be re-generated when you run the command.
 * `language_data.dart`: Modifiable language data because it's only generated 1 time.
 
-In the `_language_data_abstract.g.dart`, data will be shown like this:
+In the `_generated.dart`, data will be shown like this:
 
 ``` dart
 const analysisLanguageData = {
@@ -94,7 +98,7 @@ LanguageData languageData = {
 };
 ```
 
-You can use the `analysisLanguageData` as your main language if you feel it's detailed enough. After that, you can update your other languages by looking at the `_language_data_abstract.g.dart`. This file will contains all the texts that ending with the supported extensions of `LanguageHelper`.
+You can use the `analysisLanguageData` as your main language if you feel it's detailed enough. After that, you can update your other languages by looking at the `_generated.g.dart`. This file will contains all the texts that ending with the supported extensions of `LanguageHelper`.
 
 If you don't want to use `analysisLanguageData` as your main language, you can use it for analysis by adding it to the `initial` like this:
 
