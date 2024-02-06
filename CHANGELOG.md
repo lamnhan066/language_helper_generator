@@ -1,3 +1,9 @@
+## 0.5.0-rc.4
+
+* Bump min sdk to `3.0.0`.
+* Add `trC` to the parser.
+* Change the generated type from `<String, String>` to `<String, dynamic>`.
+
 ## 0.5.0-rc.3
 
 * Change the default path of the Dart Map generator:
