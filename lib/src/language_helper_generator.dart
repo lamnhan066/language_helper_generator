@@ -150,7 +150,7 @@ class LanguageHelperGenerator {
 
 part of '../language_data.dart';
 
-const analysisLanguageData = <String, String>{$languageData};
+const analysisLanguageData = <String, dynamic>{$languageData};
 ''';
 
     desFile.writeAsStringSync(result);
