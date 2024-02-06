@@ -29,7 +29,7 @@ class StringLiteralVisitor extends RecursiveAstVisitor<void> {
       }
     }
 
-    if (['trT', 'trF', 'trP'].contains(node.methodName.name) &&
+    if (['trT', 'trF', 'trP', 'trC'].contains(node.methodName.name) &&
         node.target != null) {
       ParsedData? parsedData = _parseExpression(node.target!);
       if (parsedData != null) {
