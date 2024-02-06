@@ -20,7 +20,7 @@ void main() {
         final tr = 'This is a "test" text'.trP();
         final tr1 = "This is a 'test' text".trP();
 
-        final tr = 'This is a "\\'" text'.tr;
+        final tr = 'This is a "\\'" text'.trC();
         final tr = "This is a '\\"' text".tr;
       ''';
       final result = generator.parse(text);
@@ -61,7 +61,7 @@ void main() {
             "is a 'test' text".trT();
 
         final tr = 'This ' 'is a "test" ' 'text'.trP();
-        final tr1 = "This ""is a 'test' ""text".trP();
+        final tr1 = "This ""is a 'test' ""text".trC();
 
         final tr = 'This ' 'is a "\\'"' 'text'.tr;
         final tr = "This " "is a '\\"'" "text".tr;

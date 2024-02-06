@@ -23,6 +23,12 @@ extension LHExtension on String {
   String trF({Map<String, dynamic> params = const {}, String? toCode}) {
     return this;
   }
+
+  /// Translate with custom instance of `LanguageHelper`.
+  String trC(LanguageHelper helper,
+      {Map<String, dynamic> params = const {}, String? toCode}) {
+    return this;
+  }
 }
 
 final languageHelper = LanguageHelper();
