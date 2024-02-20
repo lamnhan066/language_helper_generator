@@ -1,3 +1,7 @@
+## 0.5.0
+
+* Release to stable.
+
 ## 0.5.0-rc.4
 
 * Bump min sdk to `3.0.0`.
