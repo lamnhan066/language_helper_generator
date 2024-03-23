@@ -101,7 +101,6 @@ class LanguageHelperGenerator {
 
     StringBuffer languageData = StringBuffer();
     final listAllUniqueText = <ParsedData>{};
-    int i = 0;
     data.forEach((key, values) {
       // Comment file path when move to new file
       languageData.writeln('');
@@ -110,7 +109,7 @@ class LanguageHelperGenerator {
       languageData.writeln('  /// Path: $key');
       languageData.writeln(
           '  ///===========================================================================');
-      languageData.writeln("'@path_${i++}': '$key',");
+      languageData.writeln("\"@path_$key\": '',");
 
       // Map should contains unique key => comment all duppicated keys
       for (final parsed in values) {
