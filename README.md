@@ -73,7 +73,7 @@ const analysisLanguageData = {
   ///===========================================================================
   /// Path: ./lib/page_1/page_1.dart
   ///===========================================================================
-  '@path_0': './lib/page_1/page_1.dart',
+  "@path_./lib/page_1/page_1.dart": '',
   "Hello, world! 1": "Hello, world! 1",
   'This is a "quoted" string 1': 'This is a "quoted" string 1',
   "This is a 'quoted' string 1": "This is a 'quoted' string 1",
@@ -82,7 +82,7 @@ const analysisLanguageData = {
   ///===========================================================================
   /// Path: ./lib/page_1/page_2.dart
   ///===========================================================================
-  '@path_1': './lib/page_1/page_2.dart',
+  "@path_./lib/page_1/page_2.dart": '',
   // "Hello, world! 1": "Hello, world! 1",  // Duplicated
   // 'This is a "quoted" string 1': 'This is a "quoted" string 1',  // Duplicated
   "This is a 'quoted' string 2": "This is a 'quoted' string 2",
