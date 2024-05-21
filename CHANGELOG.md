@@ -1,3 +1,7 @@
+## 0.5.2
+
+* Use Use `DartFormatter` instead of `dart format`.
+
 ## 0.5.1
 
 * Change the generated path in Map from `'@path_1': '.lib/to/file.dart'` to `"@path_.lib/to/file.dart": ''`.
