@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:dart_style/dart_style.dart';
 import 'package:language_helper_generator/src/generators/json_generator.dart'
     as j;
 import 'package:language_helper_generator/src/models/data_type.dart';
@@ -152,9 +153,7 @@ part of '../language_data.dart';
 const analysisLanguageData = <String, dynamic>{$languageData};
 ''';
 
-    desFile.writeAsStringSync(result);
-
-    Process.runSync('dart', ['format', desFile.absolute.path]);
+    desFile.writeAsStringSync(DartFormatter().format(result));
 
     print('Created _generated.dart');
   }
@@ -184,9 +183,7 @@ LanguageData languageData = {
 };
 ''';
 
-    desFile.writeAsStringSync(result);
-
-    Process.runSync('dart', ['format', desFile.absolute.path]);
+    desFile.writeAsStringSync(DartFormatter().format(result));
 
     print('Created `language_data.dart`');
   }
