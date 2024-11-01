@@ -1,6 +1,10 @@
+## 0.5.3
+
+* Add `--help` flag to the generator to show help.
+
 ## 0.5.2
 
-* Use Use `DartFormatter` instead of `dart format`.
+* Use `DartFormatter` instead of `dart format`.
 
 ## 0.5.1
 
