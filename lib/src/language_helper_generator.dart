@@ -25,15 +25,28 @@ class LanguageHelperGenerator {
         'output',
         abbr: 'o',
         help:
-            'Path to the folder that you want to save the output. Default --no-json: `path`; Default --json: ./assets',
-        valueHelp: 'Default --no-json: `path`; Default --json: ./assets',
+            'Path to the folder that you want to save the output. Default --no-json: `--path`; Default --json: ./assets',
+        valueHelp: 'Default --no-json: `--path`; Default --json: ./assets',
       )
       ..addFlag(
         'json',
         abbr: 'j',
         help: 'Export to json format',
+      )
+      ..addFlag(
+        'help',
+        abbr: 'h',
+        help: 'Show help',
+        negatable: false,
       );
     final argResult = parser.parse(args);
+
+    // Show helps
+    if (argResult.flag('help')) {
+      print(parser.usage);
+      return;
+    }
+
     final path = argResult['path'] as String;
     String? output = argResult['output'];
     final result = _generate(path);
