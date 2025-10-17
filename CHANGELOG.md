@@ -1,3 +1,7 @@
+## 0.6.0
+
+* Bump dart min sdk to 3.7.0.
+
 ## 0.5.3
 
 * Add `--help` flag to the generator to show help.
