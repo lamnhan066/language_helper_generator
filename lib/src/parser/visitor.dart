@@ -50,9 +50,9 @@ class StringLiteralVisitor extends RecursiveAstVisitor<void> {
         }
       }
 
-      return _parseStringLiteral(node)?.copyWith(
-        type: isContainsVariable ? DataType.containsVariable : null,
-      );
+      return _parseStringLiteral(
+        node,
+      )?.copyWith(type: isContainsVariable ? DataType.containsVariable : null);
     } else if (node is StringLiteral) {
       return _parseStringLiteral(node);
     }
@@ -72,9 +72,7 @@ class StringLiteralVisitor extends RecursiveAstVisitor<void> {
       );
       return parsedData;
     } else {
-      parsedData = parsedData.copyWith(
-        noFormatedText: node.stringValue,
-      );
+      parsedData = parsedData.copyWith(noFormatedText: node.stringValue);
     }
     return parsedData;
   }

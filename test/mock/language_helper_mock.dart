@@ -25,8 +25,11 @@ extension LHExtension on String {
   }
 
   /// Translate with custom instance of `LanguageHelper`.
-  String trC(LanguageHelper helper,
-      {Map<String, dynamic> params = const {}, String? toCode}) {
+  String trC(
+    LanguageHelper helper, {
+    Map<String, dynamic> params = const {},
+    String? toCode,
+  }) {
     return this;
   }
 }

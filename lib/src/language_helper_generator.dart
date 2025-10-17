@@ -12,33 +12,25 @@ import 'package:language_helper_generator/src/utils/list_all_files.dart';
 
 class LanguageHelperGenerator {
   void generate(List<String> args) {
-    final parser = ArgParser()
-      ..addOption(
-        'path',
-        abbr: 'p',
-        help:
-            'Path to the main folder that you want to to create a base language. Default is `./lib`.',
-        valueHelp: './lib',
-        defaultsTo: './lib',
-      )
-      ..addOption(
-        'output',
-        abbr: 'o',
-        help:
-            'Path to the folder that you want to save the output. Default --no-json: `--path`; Default --json: ./assets',
-        valueHelp: 'Default --no-json: `--path`; Default --json: ./assets',
-      )
-      ..addFlag(
-        'json',
-        abbr: 'j',
-        help: 'Export to json format',
-      )
-      ..addFlag(
-        'help',
-        abbr: 'h',
-        help: 'Show help',
-        negatable: false,
-      );
+    final parser =
+        ArgParser()
+          ..addOption(
+            'path',
+            abbr: 'p',
+            help:
+                'Path to the main folder that you want to to create a base language. Default is `./lib`.',
+            valueHelp: './lib',
+            defaultsTo: './lib',
+          )
+          ..addOption(
+            'output',
+            abbr: 'o',
+            help:
+                'Path to the folder that you want to save the output. Default --no-json: `--path`; Default --json: ./assets',
+            valueHelp: 'Default --no-json: `--path`; Default --json: ./assets',
+          )
+          ..addFlag('json', abbr: 'j', help: 'Export to json format')
+          ..addFlag('help', abbr: 'h', help: 'Show help', negatable: false);
     final argResult = parser.parse(args);
 
     // Show helps
@@ -54,8 +46,10 @@ class LanguageHelperGenerator {
     if (argResult['json']) {
       _exportJson(result, output ?? '$path/../assets/resources');
     } else {
-      _createLanguageDataAbstractFile(result,
-          path: output ?? '$path/resources');
+      _createLanguageDataAbstractFile(
+        result,
+        path: output ?? '$path/resources',
+      );
       _createLanguageDataFile(output ?? '$path/resources');
     }
   }
@@ -119,10 +113,12 @@ class LanguageHelperGenerator {
       // Comment file path when move to new file
       languageData.writeln('');
       languageData.writeln(
-          '  ///===========================================================================');
+        '  ///===========================================================================',
+      );
       languageData.writeln('  /// Path: $key');
       languageData.writeln(
-          '  ///===========================================================================');
+        '  ///===========================================================================',
+      );
       languageData.writeln("\"@path_$key\": '',");
 
       // Map should contains unique key => comment all duppicated keys
@@ -135,7 +131,8 @@ class LanguageHelperGenerator {
           needsEndComment = '  // ${parsed.type.text}';
           // ignore: avoid_print
           print(
-              '>> Path: $key => Text: ${parsed.text} => Reason: ${parsed.type.text}');
+            '>> Path: $key => Text: ${parsed.text} => Reason: ${parsed.type.text}',
+          );
         } else {
           if (listAllUniqueText.contains(parsed)) {
             needsComment = '// ';
@@ -166,7 +163,11 @@ part of '../language_data.dart';
 const analysisLanguageData = <String, dynamic>{$languageData};
 ''';
 
-    desFile.writeAsStringSync(DartFormatter().format(result));
+    desFile.writeAsStringSync(
+      DartFormatter(
+        languageVersion: DartFormatter.latestLanguageVersion,
+      ).format(result),
+    );
 
     print('Created _generated.dart');
   }
@@ -196,7 +197,11 @@ LanguageData languageData = {
 };
 ''';
 
-    desFile.writeAsStringSync(DartFormatter().format(result));
+    desFile.writeAsStringSync(
+      DartFormatter(
+        languageVersion: DartFormatter.latestLanguageVersion,
+      ).format(result),
+    );
 
     print('Created `language_data.dart`');
   }
@@ -209,8 +214,9 @@ LanguageData languageData = {
   /// how to add the `analysisLanguageData.keys` to `analysisKeys`
   /// in the `initial` of language_helper
   void createLanguageHelperFile() {
-    final desFile =
-        File('./lib/services/language_helper/language_helper.g.dart');
+    final desFile = File(
+      './lib/services/language_helper/language_helper.g.dart',
+    );
 
     // Return if the file already exists
     if (desFile.existsSync()) return;

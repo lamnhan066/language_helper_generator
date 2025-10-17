@@ -27,19 +27,20 @@ void main() {
 
       expect(result.length, equals(10));
       expect(
-          result.map((e) => e.noFormatedText).toList(),
-          equals([
-            """This is a "test" text""",
-            '''This is a 'test' text''',
-            """This is a "test" text""",
-            '''This is a 'test' text''',
-            """This is a "test" text""",
-            '''This is a 'test' text''',
-            """This is a "test" text""",
-            '''This is a 'test' text''',
-            """This is a "'" text""",
-            '''This is a '"' text''',
-          ]));
+        result.map((e) => e.noFormatedText).toList(),
+        equals([
+          """This is a "test" text""",
+          '''This is a 'test' text''',
+          """This is a "test" text""",
+          '''This is a 'test' text''',
+          """This is a "test" text""",
+          '''This is a 'test' text''',
+          """This is a "test" text""",
+          '''This is a 'test' text''',
+          """This is a "'" text""",
+          '''This is a '"' text''',
+        ]),
+      );
     });
 
     test('Parse multiple lines', () {
@@ -70,19 +71,20 @@ void main() {
 
       expect(result.length, equals(10));
       expect(
-          result.map((e) => e.noFormatedText).toList(),
-          equals([
-            'This is a "test" text',
-            'This is \' \'a \'test\' text',
-            'This is a "test" text',
-            'This is a \'test\' text',
-            'This is a "test" text',
-            'This is a \'test\' text',
-            'This is a "test" text',
-            'This is a \'test\' text',
-            'This is a "\'"text',
-            'This is a \'"\'text'
-          ]));
+        result.map((e) => e.noFormatedText).toList(),
+        equals([
+          'This is a "test" text',
+          'This is \' \'a \'test\' text',
+          'This is a "test" text',
+          'This is a \'test\' text',
+          'This is a "test" text',
+          'This is a \'test\' text',
+          'This is a "test" text',
+          'This is a \'test\' text',
+          'This is a "\'"text',
+          'This is a \'"\'text',
+        ]),
+      );
     });
 
     test('Parse `translate` method single line', () {
@@ -106,19 +108,20 @@ void main() {
 
       expect(result.length, equals(10));
       expect(
-          result.map((e) => e.noFormatedText).toList(),
-          equals([
-            'This is a "test" text',
-            'This is a \'test\' text',
-            'This is a "test" text',
-            'This is a \'test\' text',
-            'This is a "test" text',
-            'This is a \'test\' text',
-            'This is a "test" text',
-            'This is a \'test\' text',
-            'This is a "\'" text',
-            'This is a \'"\' text'
-          ]));
+        result.map((e) => e.noFormatedText).toList(),
+        equals([
+          'This is a "test" text',
+          'This is a \'test\' text',
+          'This is a "test" text',
+          'This is a \'test\' text',
+          'This is a "test" text',
+          'This is a \'test\' text',
+          'This is a "test" text',
+          'This is a \'test\' text',
+          'This is a "\'" text',
+          'This is a \'"\' text',
+        ]),
+      );
     });
 
     test('Parse `translate` method multiple lines', () {
@@ -148,19 +151,20 @@ void main() {
 
       expect(result.length, equals(10));
       expect(
-          result.map((e) => e.noFormatedText).toList(),
-          equals([
-            'This is a "test" text',
-            'This is \' \'a \'test\' \'text',
-            'This is a "test" text',
-            'This is a \'test\' text',
-            'This is a "test" text',
-            'This is a \'test\' text',
-            'This is a "test" text',
-            'This is a \'test\' text',
-            'This is a "\'"text',
-            'This is a \'"\'text'
-          ]));
+        result.map((e) => e.noFormatedText).toList(),
+        equals([
+          'This is a "test" text',
+          'This is \' \'a \'test\' \'text',
+          'This is a "test" text',
+          'This is a \'test\' text',
+          'This is a "test" text',
+          'This is a \'test\' text',
+          'This is a "test" text',
+          'This is a \'test\' text',
+          'This is a "\'"text',
+          'This is a \'"\'text',
+        ]),
+      );
     });
 
     test('Parse ignoring variable', () {
@@ -250,7 +254,7 @@ void main() {
           '"""This is a \$variable text"""',
           'This is a\n'
               '          multi-lines text\n'
-              '          '
+              '          ',
         ]),
       );
     });

@@ -13,8 +13,11 @@ class ParsedData {
   /// Equals to `parsedText.text == ''`.
   bool get isEmpty => text == '';
 
-  ParsedData(
-      {required this.text, required this.type, required this.noFormatedText});
+  ParsedData({
+    required this.text,
+    required this.type,
+    required this.noFormatedText,
+  });
 
   static ParsedData get empty =>
       ParsedData(text: '', type: DataType.normal, noFormatedText: '');
@@ -23,11 +26,7 @@ class ParsedData {
   String toString() =>
       'ParsedData(text: $text, type: $type, noFormatedText: $noFormatedText)';
 
-  ParsedData copyWith({
-    String? text,
-    DataType? type,
-    String? noFormatedText,
-  }) {
+  ParsedData copyWith({String? text, DataType? type, String? noFormatedText}) {
     return ParsedData(
       text: text ?? this.text,
       type: type ?? this.type,
