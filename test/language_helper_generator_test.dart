@@ -296,10 +296,13 @@ const enLanguageData = <String, String>{
           '--lang=en',
         ]);
 
-        final firstRun = enFile.readAsStringSync();
-        expect(firstRun.contains('// TODO: Translate text'), isFalse);
-        expect(firstRun.contains('"Hello": "Bonjour"'), isTrue);
-        expect(firstRun.contains('"World": "Monde"'), isTrue);
+      final firstRun = enFile.readAsStringSync();
+      expect(firstRun.contains('// TODO: Translate text'), isFalse);
+      expect(firstRun.contains('const enLanguageData'), isTrue);
+      final encodedPath = json.encode('@path_${sourceFile.path}');
+      expect(firstRun.contains(encodedPath), isTrue);
+      expect(firstRun.contains('"Hello": "Bonjour"'), isTrue);
+      expect(firstRun.contains('"World": "Monde"'), isTrue);
 
         sourceFile.writeAsStringSync('''
 import 'package:language_helper/language_helper.dart';
@@ -317,27 +320,21 @@ void main() {
           '--lang=en',
         ]);
 
-        final fileContent = enFile.readAsStringSync();
-        final secondRunLines = fileContent.split('\n');
-        final helloIndex = secondRunLines.indexWhere(
-          (line) => line.contains('Bonjour'),
-        );
-        final worldIndex = secondRunLines.indexWhere(
-          (line) => line.contains('Monde'),
-        );
-        expect(helloIndex, isNonNegative);
-        expect(worldIndex, isNonNegative);
-        expect(secondRunLines[helloIndex - 1].contains('// TODO'), isFalse);
-        expect(secondRunLines[worldIndex - 1].contains('// TODO'), isFalse);
-
-        final newKeyIndex = secondRunLines.indexWhere(
-          (line) => line.contains('"New key"'),
-        );
-        expect(newKeyIndex, isNonNegative);
-        expect(
-          secondRunLines[newKeyIndex - 1].trim(),
-          equals('// TODO: Translate text'),
-        );
+      final fileContent = enFile.readAsStringSync();
+      expect(
+        fileContent.contains('// TODO: Translate text\n  "Hello": "Bonjour",'),
+        isFalse,
+      );
+      expect(
+        fileContent.contains('// TODO: Translate text\n  "World": "Monde",'),
+        isFalse,
+      );
+      expect(
+        fileContent.contains(
+          '// TODO: Translate text\n  "New key": "New key",',
+        ),
+        isTrue,
+      );
       } finally {
         tempDir.deleteSync(recursive: true);
       }

@@ -75,6 +75,7 @@ This command will generate a structure base files with this format (--path=".lib
 
 * `_generated.dart`: Contains your base language from your all `.dart` files. This file will be re-generated when you run the command.
 * `language_data.dart`: Modifiable language data because it's only generated 1 time.
+* `<code>.dart`: Mirrors `_generated.dart` by grouping entries under the originating file path, keeping your translations while marking missing ones with `// TODO: Translate text`.
 
 In the `_generated.dart`, data will be shown like this:
 

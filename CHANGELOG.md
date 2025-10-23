@@ -1,6 +1,9 @@
 ## 0.6.1
 
 * Add a `--lang` flag to scaffold and merge language boilerplate files for both Dart maps and JSON exports, preserving existing translations and marking new keys with TODO comments.
+* Use the analyzer context to parse source files for more reliable extraction.
+* Dart language boilerplate now mirrors `_generated.dart` structure, including per-file path markers.
+* Extend automated tests to cover language boilerplate generation and TODO handling.
 * Update the JSON generator to refresh `codes.json` when re-running.
 
 ## 0.6.0
