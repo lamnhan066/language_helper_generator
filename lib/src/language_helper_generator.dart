@@ -71,7 +71,7 @@ class LanguageHelperGenerator {
         path: output ?? '$path/resources',
         ignoreCommented: ignoreCommented,
       );
-      _createLanguageDataFile(output ?? '$path/resources');
+      _createLanguageDataFile(languageCodes, path: output ?? '$path/resources');
       _createLanguageBoilerplateFiles(
         result,
         languageCodes,
@@ -201,8 +201,6 @@ class LanguageHelperGenerator {
 
 // ignore_for_file: prefer_single_quotes
 
-part of '../language_data.dart';
-
 const analysisLanguageData = <String, dynamic>{$languageData};
 ''';
 
@@ -216,7 +214,10 @@ const analysisLanguageData = <String, dynamic>{$languageData};
   }
 
   /// Create `language_data.dart`
-  void _createLanguageDataFile([String path = './lib/resources']) {
+  void _createLanguageDataFile(
+    List<String> languageCodes, {
+    String path = './lib/resources',
+  }) {
     print('Creating `language_data.dart`...');
 
     final desFile = File('$path/language_helper/language_data.dart');
@@ -229,21 +230,60 @@ const analysisLanguageData = <String, dynamic>{$languageData};
 
     desFile.createSync(recursive: true);
 
-    const result = '''
-import 'package:language_helper/language_helper.dart';
+    final entriesBuffer = StringBuffer();
+    var hasEntries = false;
+    final normalizedCodes = {
+      for (final raw in languageCodes)
+        if (raw.trim().isNotEmpty) raw.trim(),
+    }.toList(growable: false);
+    final languageImportList = <String>[];
+    final languageImportSet = <String>{};
 
-part 'languages/_generated.dart';
+    if (normalizedCodes.isEmpty) {
+      entriesBuffer.writeln('  LanguageCodes.en: analysisLanguageData,');
+      hasEntries = true;
+    } else {
+      final seenEnumNames = <String>{};
+      for (final code in normalizedCodes) {
+        final enumName = _languageEnumName(code);
+        if (enumName == null || !seenEnumNames.add(enumName)) continue;
+        final constName = _languageConstName(code);
+        if (constName == 'languageData') continue;
+        entriesBuffer.writeln('  LanguageCodes.$enumName: $constName,');
+        hasEntries = true;
+        if (languageImportSet.add(code)) {
+          languageImportList.add(code);
+        }
+      }
+      if (!hasEntries) {
+        entriesBuffer.writeln('  LanguageCodes.en: analysisLanguageData,');
+        hasEntries = true;
+      }
+    }
 
-LanguageData languageData = {
-  // TODO: You can use this data as your main language, remember to change [LanguageCodes.en] to your base language code
-  LanguageCodes.en: analysisLanguageData,
-};
-''';
+    final fileBuffer =
+        StringBuffer()
+          ..writeln("import 'package:language_helper/language_helper.dart';")
+          ..writeln();
+
+    if (normalizedCodes.isEmpty) {
+      fileBuffer.writeln("import 'languages/_generated.dart';");
+    }
+
+    for (final code in languageImportList) {
+      fileBuffer.writeln("import 'languages/$code.dart';");
+    }
+
+    fileBuffer
+      ..writeln()
+      ..writeln('LanguageData languageData = {')
+      ..write(entriesBuffer.toString())
+      ..writeln('};');
 
     desFile.writeAsStringSync(
       DartFormatter(
         languageVersion: DartFormatter.latestLanguageVersion,
-      ).format(result),
+      ).format(fileBuffer.toString()),
     );
 
     print('Created `language_data.dart`');
@@ -527,6 +567,18 @@ LanguageData languageData = {
   }
 
   String _stringLiteral(String value) => json.encode(value);
+
+  String? _languageEnumName(String code) {
+    final sanitized = code.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '_');
+    final parts = sanitized
+        .split('_')
+        .where((part) => part.isNotEmpty)
+        .map((part) => part.toLowerCase());
+    final enumName = parts.join('_');
+    if (enumName.isEmpty) return null;
+    if (RegExp(r'^[0-9]').hasMatch(enumName)) return null;
+    return enumName;
+  }
 
   String _languageConstName(String code) {
     final sanitized = code.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '_');
