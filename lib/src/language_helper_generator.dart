@@ -134,7 +134,7 @@ class LanguageHelperGenerator {
     StringBuffer languageData = StringBuffer();
     final listAllUniqueText = <ParsedData>{};
     data.forEach((key, values) {
-      final relativePath = p.relative(key);
+      final relativePath = './${p.relative(key)}';
 
       // Comment file path when move to new file
       languageData.writeln('');
@@ -299,7 +299,7 @@ LanguageData languageData = {
         );
 
       data.forEach((filePath, values) {
-        final relativePath = p.relative(filePath);
+        final relativePath = './${p.relative(filePath)}';
         final pathKey = '@path_$relativePath';
         final pathKeyLiteral = _stringLiteral(pathKey);
         final pathEntry = existing.entries[pathKey];
