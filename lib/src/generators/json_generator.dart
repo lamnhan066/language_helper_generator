@@ -13,7 +13,6 @@ void exportJson(
   print('===========================================================');
   print('Exporting Json...');
   _exportJsonCodes(path, languageCodes);
-  _exportJsonGeneratedFile(data, path);
   _exportJsonLanguageFiles(data, path, languageCodes);
   print('Exported Json');
   print('===========================================================');
@@ -63,29 +62,6 @@ void _exportJsonCodes(String path, List<String> languageCodes) {
   desFile.writeAsStringSync(encoder.convert(orderedCodes));
 
   print(existed ? 'Updated codes.json' : 'Created codes.json');
-}
-
-void _exportJsonGeneratedFile(Map<String, List<ParsedData>> data, String path) {
-  print('Creating languages json files...');
-
-  final desPath = '$path/language_helper/languages/';
-  final desFile = File('${desPath}_generated.json');
-  desFile.createSync(recursive: true);
-  final map = <String, dynamic>{};
-  data.forEach((filePath, values) {
-    final relativePath = p.relative(filePath);
-    map['@path_$relativePath'] = '';
-    for (final text in values) {
-      if (text.type == DataType.normal) {
-        map[text.noFormatedText] = '';
-      }
-    }
-  });
-
-  JsonEncoder encoder = const JsonEncoder.withIndent('  ');
-  desFile.writeAsStringSync(encoder.convert(map));
-
-  print('Created languages json files');
 }
 
 void _exportJsonLanguageFiles(
