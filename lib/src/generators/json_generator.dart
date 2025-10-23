@@ -73,7 +73,7 @@ void _exportJsonGeneratedFile(Map<String, List<ParsedData>> data, String path) {
   desFile.createSync(recursive: true);
   final map = <String, dynamic>{};
   data.forEach((filePath, values) {
-    final relativePath = './${p.relative(filePath)}';
+    final relativePath = p.relative(filePath);
     map['@path_$relativePath'] = '';
     for (final text in values) {
       if (text.type == DataType.normal) {
@@ -123,7 +123,7 @@ void _exportJsonLanguageFiles(
     final seenTexts = <String>{};
 
     data.forEach((filePath, values) {
-      final relativePath = './${p.relative(filePath)}';
+      final relativePath = p.relative(filePath);
       final pathKey = '@path_$relativePath';
       merged[pathKey] = existing[pathKey] ?? '';
 

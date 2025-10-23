@@ -13,6 +13,7 @@ import 'package:language_helper_generator/src/models/data_type.dart';
 import 'package:language_helper_generator/src/models/parsed_data.dart';
 import 'package:language_helper_generator/src/parser/parser.dart';
 import 'package:language_helper_generator/src/utils/list_all_files.dart';
+import 'package:language_helper_generator/src/utils/todo_comment.dart';
 import 'package:path/path.dart' as p;
 
 class LanguageHelperGenerator {
@@ -98,14 +99,20 @@ class LanguageHelperGenerator {
     for (final file in allFiles) {
       // Only analyze the file ending with .dart
       if (file is File && file.path.endsWith('.dart')) {
-        // get file path
-        final filePath = p.normalize(file.absolute.path);
+        final normalizedPath = p.normalize(file.absolute.path);
 
         // Avoid getting data from this folder
-        if (filePath.contains('language_helper/languages')) continue;
+        if (normalizedPath.contains('language_helper/languages')) continue;
 
-        final parsed = _parseFile(filePath, contextCollection);
-        if (parsed.isNotEmpty) result[filePath] = parsed;
+        final parsed = _parseFile(normalizedPath, contextCollection);
+        if (parsed.isEmpty) continue;
+
+        final relativePath = p.relative(
+          normalizedPath,
+          from: dir.absolute.path,
+        );
+
+        result[relativePath] = parsed;
       }
     }
 
@@ -134,18 +141,16 @@ class LanguageHelperGenerator {
     StringBuffer languageData = StringBuffer();
     final listAllUniqueText = <ParsedData>{};
     data.forEach((key, values) {
-      final relativePath = './${p.relative(key)}';
-
       // Comment file path when move to new file
       languageData.writeln('');
       languageData.writeln(
         '  ///===========================================================================',
       );
-      languageData.writeln('  /// Path: $relativePath');
+      languageData.writeln('  /// Path: $key');
       languageData.writeln(
         '  ///===========================================================================',
       );
-      languageData.writeln("\"@path_$relativePath\": '',");
+      languageData.writeln("\"@path_$key\": '',");
 
       // Map should contains unique key => comment all duppicated keys
       for (final parsed in values) {
@@ -299,8 +304,7 @@ LanguageData languageData = {
         );
 
       data.forEach((filePath, values) {
-        final relativePath = './${p.relative(filePath)}';
-        final pathKey = '@path_$relativePath';
+        final pathKey = '@path_$filePath';
         final pathKeyLiteral = _stringLiteral(pathKey);
         final pathEntry = existing.entries[pathKey];
         final pathValueExpression = pathEntry?.expression ?? _stringLiteral('');
@@ -310,7 +314,7 @@ LanguageData languageData = {
           ..writeln(
             '  ///===========================================================================',
           )
-          ..writeln('  /// Path: $relativePath')
+          ..writeln('  /// Path: $filePath')
           ..writeln(
             '  ///===========================================================================',
           );
@@ -356,7 +360,7 @@ LanguageData languageData = {
               !key.startsWith('@path_');
 
           if (needsTodo) {
-            buffer.writeln('  // TODO: Translate text');
+            buffer.writeln('  ${todoComment(code)}');
           }
           buffer.writeln('  $keyLiteral: $valueExpression,');
         }
@@ -473,7 +477,7 @@ LanguageData languageData = {
       final trimmed = rawLine.trim();
       if (trimmed.isEmpty) continue;
 
-      final containsTodo = trimmed.contains('// TODO: Translate text');
+      final containsTodo = containsTodoComment(trimmed);
       final isCommentLine = trimmed.startsWith('//');
 
       if (isCommentLine) {

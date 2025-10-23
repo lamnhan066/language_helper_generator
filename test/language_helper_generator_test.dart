@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:language_helper_generator/language_helper_generator.dart';
 import 'package:language_helper_generator/src/models/data_type.dart';
+import 'package:language_helper_generator/src/utils/todo_comment.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -301,12 +302,12 @@ const enLanguageData = <String, dynamic>{
         ]);
 
         final firstRun = enFile.readAsStringSync();
-        expect(firstRun.contains('// TODO: Translate text'), isFalse);
+        expect(firstRun.contains(todoComment('en')), isFalse);
         expect(
           firstRun.contains('const enLanguageData = <String, dynamic>{'),
           isTrue,
         );
-        final encodedPath = '@path_${sourceFile.path}';
+        final encodedPath = '@path_page.dart';
         expect(firstRun.contains('"$encodedPath":'), isTrue);
         expect(firstRun.contains('"Hello": "Bonjour"'), isTrue);
         expect(firstRun.contains('LanguageConditions('), isTrue);
@@ -335,9 +336,7 @@ void main() {
 
         final fileContent = enFile.readAsStringSync();
         expect(
-          fileContent.contains(
-            '// TODO: Translate text\n  "Hello": "Bonjour",',
-          ),
+          fileContent.contains('${todoComment('en')}\n  "Hello": "Bonjour",'),
           isFalse,
         );
         expect(fileContent.contains('LanguageConditions('), isTrue);
@@ -348,9 +347,7 @@ void main() {
           isTrue,
         );
         expect(
-          fileContent.contains(
-            '// TODO: Translate text\n  "New key": "New key",',
-          ),
+          fileContent.contains('${todoComment('en')}\n  "New key": "New key",'),
           isTrue,
         );
       } finally {
@@ -398,7 +395,7 @@ void main() {
 
       final enTranslations =
           (jsonDecode(enJson.readAsStringSync()) as Map).cast<String, String>();
-      final pathKey = '@path_${sourceFile.path}';
+      final pathKey = '@path_page.dart';
       expect(enTranslations[pathKey], equals(''));
       expect(enTranslations['Hello'], equals('Bonjour'));
       expect(enTranslations['World'], equals(''));
