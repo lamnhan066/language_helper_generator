@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:language_helper_generator/language_helper_generator.dart';
 import 'package:language_helper_generator/src/models/data_type.dart';
 import 'package:test/test.dart';
@@ -258,5 +260,91 @@ void main() {
         ]),
       );
     });
+  });
+
+  test(
+      'Language boilerplate preserves translated entries and marks only new keys',
+      () {
+    final tempDir = Directory.systemTemp.createTempSync('lang_helper_test_');
+    try {
+      final generator = LanguageHelperGenerator();
+      final sourceFile = File('${tempDir.path}/page.dart');
+      sourceFile.writeAsStringSync(
+        '''
+import 'package:language_helper/language_helper.dart';
+
+void main() {
+  'Hello'.tr;
+  'World'.tr;
+}
+''',
+      );
+
+      final languagesDir = Directory(
+        '${tempDir.path}/resources/language_helper/languages',
+      )..createSync(recursive: true);
+      final enFile = File('${languagesDir.path}/en.dart');
+      enFile.writeAsStringSync(
+        '''
+const enLanguageData = <String, String>{
+  "World": "Monde",
+  "Hello": "Bonjour",
+};
+''',
+      );
+
+      generator.generate([
+        '--path=${tempDir.path}',
+        '--output=${tempDir.path}/resources',
+        '--lang=en',
+      ]);
+
+      final firstRun = enFile.readAsStringSync();
+      expect(firstRun.contains('// TODO: Translate text'), isFalse);
+      expect(firstRun.contains('"Hello": "Bonjour"'), isTrue);
+      expect(firstRun.contains('"World": "Monde"'), isTrue);
+
+      sourceFile.writeAsStringSync(
+        '''
+import 'package:language_helper/language_helper.dart';
+
+void main() {
+  'World'.tr;
+  'Hello'.tr;
+  'New key'.tr;
+}
+''',
+      );
+
+      generator.generate([
+        '--path=${tempDir.path}',
+        '--output=${tempDir.path}/resources',
+        '--lang=en',
+      ]);
+
+      final fileContent = enFile.readAsStringSync();
+      final secondRunLines = fileContent.split('\n');
+      final helloIndex = secondRunLines.indexWhere(
+        (line) => line.contains('Bonjour'),
+      );
+      final worldIndex = secondRunLines.indexWhere(
+        (line) => line.contains('Monde'),
+      );
+      expect(helloIndex, isNonNegative);
+      expect(worldIndex, isNonNegative);
+      expect(secondRunLines[helloIndex - 1].contains('// TODO'), isFalse);
+      expect(secondRunLines[worldIndex - 1].contains('// TODO'), isFalse);
+
+      final newKeyIndex = secondRunLines.indexWhere(
+        (line) => line.contains('"New key"'),
+      );
+      expect(newKeyIndex, isNonNegative);
+      expect(
+        secondRunLines[newKeyIndex - 1].trim(),
+        equals('// TODO: Translate text'),
+      );
+    } finally {
+      tempDir.deleteSync(recursive: true);
+    }
   });
 }
