@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:language_helper_generator/src/models/data_type.dart';
 import 'package:language_helper_generator/src/models/parsed_data.dart';
+import 'package:path/path.dart' as p;
 
 void exportJson(
   Map<String, List<ParsedData>> data,
@@ -72,7 +73,8 @@ void _exportJsonGeneratedFile(Map<String, List<ParsedData>> data, String path) {
   desFile.createSync(recursive: true);
   final map = <String, dynamic>{};
   data.forEach((filePath, values) {
-    map['@path_$filePath'] = '';
+    final relativePath = './${p.relative(filePath)}';
+    map['@path_$relativePath'] = '';
     for (final text in values) {
       if (text.type == DataType.normal) {
         map[text.noFormatedText] = text.noFormatedText;
@@ -121,7 +123,8 @@ void _exportJsonLanguageFiles(
     final seenTexts = <String>{};
 
     data.forEach((filePath, values) {
-      final pathKey = '@path_$filePath';
+      final relativePath = './${p.relative(filePath)}';
+      final pathKey = '@path_$relativePath';
       merged[pathKey] = existing[pathKey] ?? '';
 
       for (final parsed in values) {
