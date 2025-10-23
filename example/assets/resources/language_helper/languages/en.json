@@ -1,6 +1,6 @@
 {
   "@path_page_1/page_1.dart": "",
-  "Hello, world! 1": "Xin Chao",
+  "Hello, world! 1": "",
   "This is a \"quoted\" string 1": "",
   "This is a 'quoted' string 1": "",
   "This is a string with @{num} parameters 1": "",
@@ -10,7 +10,7 @@
   "This is a 'quoted' string 2": "",
   "This is a string with @{num} parameters 2": "",
   "@path_page_2/page_1.dart": "",
-  "Hello, world! 2": "Xin chao....",
+  "Hello, world! 2": "",
   "This is a \"quoted\" string 2": "",
   "This is a 'quoted' string 3": "",
   "This is a string with @{num} parameters 3": "",
