@@ -347,7 +347,7 @@ void main() {
           isTrue,
         );
         expect(
-          fileContent.contains('${todoComment('en')}\n  "New key": "New key",'),
+          fileContent.contains('${todoComment('en')}\n  "New key": "",'),
           isTrue,
         );
       } finally {
@@ -439,8 +439,7 @@ void main() {
       );
       final content = enFile.readAsStringSync();
       expect(content.contains('Duplicated'), isFalse);
-      final helloMatches = RegExp('"Hello"').allMatches(content).length;
-      expect(helloMatches, equals(2));
+      expect(content.contains('"Hello": ""'), isTrue);
     } finally {
       tempDir.deleteSync(recursive: true);
     }

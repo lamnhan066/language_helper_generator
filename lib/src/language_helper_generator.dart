@@ -186,7 +186,7 @@ class LanguageHelperGenerator {
         if (needsComment.isNotEmpty && ignoreCommented) continue;
 
         languageData.writeln(
-          '  $needsComment${parsed.text}: ${parsed.text},$needsEndComment',
+          '  $needsComment${parsed.text}: \'\',$needsEndComment',
         );
       }
     });
@@ -339,7 +339,7 @@ LanguageData languageData = {
           final keyLiteral = _stringLiteral(key);
           final existingEntry = existing.entries[key];
           final valueExpression =
-              existingEntry?.expression ?? _stringLiteral(key);
+              existingEntry?.expression ?? _stringLiteral('');
           final existingStringValue = existingEntry?.stringValue;
 
           String commentPrefix = '';
