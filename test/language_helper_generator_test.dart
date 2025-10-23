@@ -431,7 +431,7 @@ void main() {
         '--path=${tempDir.path}',
         '--output=${tempDir.path}/resources',
         '--lang=en',
-        '--ignore-commented',
+        '--ignore-invalid',
       ]);
 
       final enFile = File(
@@ -440,7 +440,7 @@ void main() {
       final content = enFile.readAsStringSync();
       expect(content.contains('Duplicated'), isFalse);
       final helloMatches = RegExp('"Hello"').allMatches(content).length;
-      expect(helloMatches, equals(1));
+      expect(helloMatches, equals(2));
     } finally {
       tempDir.deleteSync(recursive: true);
     }

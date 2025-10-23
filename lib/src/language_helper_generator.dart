@@ -42,7 +42,7 @@ class LanguageHelperGenerator {
             valueHelp: 'en,vi',
           )
           ..addFlag(
-            'ignore-commented',
+            'ignore-invalid',
             help:
                 'Ignore commented-out duplicated or invalid entries in outputs.',
             defaultsTo: false,
@@ -60,7 +60,7 @@ class LanguageHelperGenerator {
     final path = argResult['path'] as String;
     String? output = argResult['output'];
     final languageCodes = _parseLanguageCodes(argResult['lang'] as String?);
-    final ignoreCommented = argResult['ignore-commented'] as bool;
+    final ignoreCommented = argResult['ignore-invalid'] as bool;
     final result = _generate(path);
     if (result == null) return;
     if (argResult['json']) {
