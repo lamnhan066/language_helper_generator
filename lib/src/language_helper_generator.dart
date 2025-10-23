@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:analyzer/dart/analysis/analysis_context_collection.dart';
 import 'package:analyzer/dart/analysis/results.dart';
+import 'package:analyzer/dart/analysis/utilities.dart';
+import 'package:analyzer/dart/ast/ast.dart';
 import 'package:args/args.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:language_helper_generator/src/generators/json_generator.dart'
@@ -277,9 +279,16 @@ LanguageData languageData = {
             ..writeln()
             ..writeln('// ignore_for_file: prefer_single_quotes')
             ..writeln()
-            ..writeln('const ${_languageConstName(code)} = <String, String>{');
+            ..writeln(
+              '${existing.declarationKeyword} ${_languageConstName(code)} = <String, dynamic>{',
+            );
 
       data.forEach((filePath, values) {
+        final pathKey = '@path_$filePath';
+        final pathKeyLiteral = _stringLiteral(pathKey);
+        final pathEntry = existing.entries[pathKey];
+        final pathValueExpression = pathEntry?.expression ?? _stringLiteral('');
+
         buffer
           ..writeln()
           ..writeln(
@@ -290,16 +299,15 @@ LanguageData languageData = {
             '  ///===========================================================================',
           );
 
-        final pathKey = '@path_$filePath';
-        final pathValue = existing.translations[pathKey] ?? '';
-        buffer.writeln('  ${json.encode(pathKey)}: ${json.encode(pathValue)},');
+        buffer.writeln('  $pathKeyLiteral: $pathValueExpression,');
 
         for (final parsed in values) {
           final key = parsed.noFormatedText;
-          final encodedKey = json.encode(key);
-          final existingValue = existing.translations[key];
-          final value = existingValue ?? key;
-          final encodedValue = json.encode(value);
+          final keyLiteral = _stringLiteral(key);
+          final existingEntry = existing.entries[key];
+          final valueExpression =
+              existingEntry?.expression ?? _stringLiteral(key);
+          final existingStringValue = existingEntry?.stringValue;
 
           String commentPrefix = '';
           String commentSuffix = '';
@@ -317,19 +325,24 @@ LanguageData languageData = {
 
           if (commentOut) {
             buffer.writeln(
-              '  $commentPrefix$encodedKey: $encodedValue,$commentSuffix',
+              '  $commentPrefix$keyLiteral: $valueExpression,$commentSuffix',
             );
             continue;
           }
 
           final hasExistingTodo = existing.todoKeys.contains(key);
-          final isPlaceholder = existingValue == null || existingValue == key;
+          final isPlaceholder =
+              existingEntry == null ||
+              (existingStringValue != null &&
+                  (existingStringValue.isEmpty || existingStringValue == key));
           final needsTodo =
-              existingValue == null || (hasExistingTodo && isPlaceholder);
+              (existingEntry == null || (hasExistingTodo && isPlaceholder)) &&
+              !key.startsWith('@path_');
+
           if (needsTodo) {
             buffer.writeln('  // TODO: Translate text');
           }
-          buffer.writeln('  $encodedKey: $encodedValue,');
+          buffer.writeln('  $keyLiteral: $valueExpression,');
         }
       });
 
@@ -380,58 +393,97 @@ LanguageData languageData = {
       return _ExistingLanguageFile();
     }
 
-    final lines = file.readAsLinesSync();
-    final translations = <String, String>{};
-    final todoKeys = <String>{};
-    final entryRegex = RegExp(r'"((?:[^"\\]|\\.)*)"\s*:\s*"((?:[^"\\]|\\.)*)"');
+    final content = file.readAsStringSync();
+    final parseResult = parseString(content: content);
+    final unit = parseResult.unit;
 
+    final entries = <String, _ExistingEntry>{};
+    String declarationKeyword = 'const';
+
+    for (final declaration in unit.declarations) {
+      if (declaration is! TopLevelVariableDeclaration) continue;
+      final variableList = declaration.variables;
+      final keyword = variableList.keyword?.lexeme;
+
+      for (final variable in variableList.variables) {
+        final initializer = variable.initializer;
+        if (initializer is! SetOrMapLiteral) continue;
+        final hasMapEntry = initializer.elements.any(
+          (element) => element is MapLiteralEntry,
+        );
+        if (!hasMapEntry) continue;
+
+        if (keyword == 'final') {
+          declarationKeyword = 'final';
+        } else if (keyword == 'const') {
+          declarationKeyword = 'const';
+        }
+
+        for (final element in initializer.elements) {
+          if (element is! MapLiteralEntry) continue;
+          final keyLiteral = element.key;
+          if (keyLiteral is! StringLiteral) continue;
+          final key = keyLiteral.stringValue;
+          if (key == null) continue;
+
+          final value = element.value;
+          final expression = value.toSource();
+          String? stringValue;
+          if (value is StringLiteral) {
+            stringValue = value.stringValue;
+          }
+
+          entries[key] = _ExistingEntry(
+            expression: expression,
+            stringValue: stringValue,
+          );
+        }
+
+        break;
+      }
+    }
+
+    final todoKeys = <String>{};
+    final keyRegex = RegExp(r'"((?:[^"\\]|\\.)*)"\s*:');
     bool pendingTodoComment = false;
 
-    for (final rawLine in lines) {
+    for (final rawLine in content.split('\n')) {
       final trimmed = rawLine.trim();
       if (trimmed.isEmpty) continue;
 
-      final isCommentLine = trimmed.startsWith('//');
       final containsTodo = trimmed.contains('// TODO: Translate text');
+      final isCommentLine = trimmed.startsWith('//');
+
       if (isCommentLine) {
         if (containsTodo) pendingTodoComment = true;
         continue;
       }
 
       var line = trimmed;
-      bool inlineTodo = false;
       if (containsTodo) {
-        inlineTodo = true;
         line = line.split('//').first.trimRight();
       }
-      if (line.endsWith(',')) {
-        line = line.substring(0, line.length - 1);
-      }
-      if (line.endsWith(';')) {
-        line = line.substring(0, line.length - 1);
-      }
-      final matches = entryRegex.allMatches(line);
-      if (matches.isEmpty) continue;
 
-      bool applyPendingTodo = pendingTodoComment;
-      pendingTodoComment = false;
-      for (final match in matches) {
-        final key = json.decode('"${match.group(1)!}"') as String;
-        final value = json.decode('"${match.group(2)!}"') as String;
-        translations[key] = value;
-        final needsTodo = inlineTodo || applyPendingTodo;
-        if (needsTodo) {
-          todoKeys.add(key);
-          applyPendingTodo = false;
-        }
+      final match = keyRegex.firstMatch(line);
+      if (match == null) continue;
+
+      final key = json.decode('"${match.group(1)!}"') as String;
+      if (containsTodo || pendingTodoComment) {
+        todoKeys.add(key);
+        pendingTodoComment = false;
+      } else {
+        pendingTodoComment = false;
       }
     }
 
     return _ExistingLanguageFile(
-      translations: translations,
+      entries: entries,
       todoKeys: todoKeys,
+      declarationKeyword: declarationKeyword,
     );
   }
+
+  String _stringLiteral(String value) => json.encode(value);
 
   String _languageConstName(String code) {
     final sanitized = code.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '_');
@@ -493,12 +545,22 @@ Future<void> languageHelperInitial() async {
 }
 
 class _ExistingLanguageFile {
-  final Map<String, String> translations;
+  final Map<String, _ExistingEntry> entries;
   final Set<String> todoKeys;
+  final String declarationKeyword;
 
   _ExistingLanguageFile({
-    Map<String, String>? translations,
+    Map<String, _ExistingEntry>? entries,
     Set<String>? todoKeys,
-  }) : translations = translations ?? <String, String>{},
-       todoKeys = todoKeys ?? <String>{};
+    String? declarationKeyword,
+  }) : entries = entries ?? <String, _ExistingEntry>{},
+       todoKeys = todoKeys ?? <String>{},
+       declarationKeyword = declarationKeyword ?? 'const';
+}
+
+class _ExistingEntry {
+  final String expression;
+  final String? stringValue;
+
+  _ExistingEntry({required this.expression, this.stringValue});
 }

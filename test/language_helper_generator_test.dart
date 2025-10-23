@@ -284,8 +284,10 @@ void main() {
         )..createSync(recursive: true);
         final enFile = File('${languagesDir.path}/en.dart');
         enFile.writeAsStringSync('''
-const enLanguageData = <String, String>{
-  "World": "Monde",
+const enLanguageData = <String, dynamic>{
+  "World": LanguageConditions(param: 'param', conditions: {
+    '_': 'xxx',
+  }),
   "Hello": "Bonjour",
 };
 ''');
@@ -296,13 +298,16 @@ const enLanguageData = <String, String>{
           '--lang=en',
         ]);
 
-      final firstRun = enFile.readAsStringSync();
-      expect(firstRun.contains('// TODO: Translate text'), isFalse);
-      expect(firstRun.contains('const enLanguageData'), isTrue);
-      final encodedPath = json.encode('@path_${sourceFile.path}');
-      expect(firstRun.contains(encodedPath), isTrue);
-      expect(firstRun.contains('"Hello": "Bonjour"'), isTrue);
-      expect(firstRun.contains('"World": "Monde"'), isTrue);
+        final firstRun = enFile.readAsStringSync();
+        expect(firstRun.contains('// TODO: Translate text'), isFalse);
+        expect(
+          firstRun.contains('const enLanguageData = <String, dynamic>{'),
+          isTrue,
+        );
+        final encodedPath = '@path_${sourceFile.path}';
+        expect(firstRun.contains('"$encodedPath":'), isTrue);
+        expect(firstRun.contains('"Hello": "Bonjour"'), isTrue);
+        expect(firstRun.contains('LanguageConditions('), isTrue);
 
         sourceFile.writeAsStringSync('''
 import 'package:language_helper/language_helper.dart';
@@ -320,21 +325,20 @@ void main() {
           '--lang=en',
         ]);
 
-      final fileContent = enFile.readAsStringSync();
-      expect(
-        fileContent.contains('// TODO: Translate text\n  "Hello": "Bonjour",'),
-        isFalse,
-      );
-      expect(
-        fileContent.contains('// TODO: Translate text\n  "World": "Monde",'),
-        isFalse,
-      );
-      expect(
-        fileContent.contains(
-          '// TODO: Translate text\n  "New key": "New key",',
-        ),
-        isTrue,
-      );
+        final fileContent = enFile.readAsStringSync();
+        expect(
+          fileContent.contains(
+            '// TODO: Translate text\n  "Hello": "Bonjour",',
+          ),
+          isFalse,
+        );
+        expect(fileContent.contains('LanguageConditions('), isTrue);
+        expect(
+          fileContent.contains(
+            '// TODO: Translate text\n  "New key": "New key",',
+          ),
+          isTrue,
+        );
       } finally {
         tempDir.deleteSync(recursive: true);
       }
@@ -402,15 +406,13 @@ void main() {
     try {
       final generator = LanguageHelperGenerator();
       final libDir = Directory('${tempDir.path}/lib')..createSync();
-      File('${libDir.path}/page.dart').writeAsStringSync(
-        '''
+      File('${libDir.path}/page.dart').writeAsStringSync('''
 import 'package:language_helper/language_helper.dart';
 
 void main() {
   'Hello'.tr;
 }
-''',
-      );
+''');
 
       generator.generate([
         '--path=${libDir.path}',

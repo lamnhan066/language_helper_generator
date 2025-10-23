@@ -64,10 +64,7 @@ void _exportJsonCodes(String path, List<String> languageCodes) {
   print(existed ? 'Updated codes.json' : 'Created codes.json');
 }
 
-void _exportJsonGeneratedFile(
-  Map<String, List<ParsedData>> data,
-  String path,
-) {
+void _exportJsonGeneratedFile(Map<String, List<ParsedData>> data, String path) {
   print('Creating languages json files...');
 
   final desPath = '$path/language_helper/languages/';
@@ -138,8 +135,6 @@ void _exportJsonLanguageFiles(
 
     JsonEncoder encoder = const JsonEncoder.withIndent('  ');
     file.writeAsStringSync(encoder.convert(merged));
-    print(
-      '${existed ? 'Updated' : 'Created'} language file: ${file.path}',
-    );
+    print('${existed ? 'Updated' : 'Created'} language file: ${file.path}');
   }
 }
