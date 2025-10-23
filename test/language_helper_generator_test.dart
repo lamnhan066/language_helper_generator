@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:language_helper_generator/language_helper_generator.dart';
@@ -263,49 +264,44 @@ void main() {
   });
 
   test(
-      'Language boilerplate preserves translated entries and marks only new keys',
-      () {
-    final tempDir = Directory.systemTemp.createTempSync('lang_helper_test_');
-    try {
-      final generator = LanguageHelperGenerator();
-      final sourceFile = File('${tempDir.path}/page.dart');
-      sourceFile.writeAsStringSync(
-        '''
+    'Language boilerplate preserves translated entries and marks only new keys',
+    () {
+      final tempDir = Directory.systemTemp.createTempSync('lang_helper_test_');
+      try {
+        final generator = LanguageHelperGenerator();
+        final sourceFile = File('${tempDir.path}/page.dart');
+        sourceFile.writeAsStringSync('''
 import 'package:language_helper/language_helper.dart';
 
 void main() {
   'Hello'.tr;
   'World'.tr;
 }
-''',
-      );
+''');
 
-      final languagesDir = Directory(
-        '${tempDir.path}/resources/language_helper/languages',
-      )..createSync(recursive: true);
-      final enFile = File('${languagesDir.path}/en.dart');
-      enFile.writeAsStringSync(
-        '''
+        final languagesDir = Directory(
+          '${tempDir.path}/resources/language_helper/languages',
+        )..createSync(recursive: true);
+        final enFile = File('${languagesDir.path}/en.dart');
+        enFile.writeAsStringSync('''
 const enLanguageData = <String, String>{
   "World": "Monde",
   "Hello": "Bonjour",
 };
-''',
-      );
+''');
 
-      generator.generate([
-        '--path=${tempDir.path}',
-        '--output=${tempDir.path}/resources',
-        '--lang=en',
-      ]);
+        generator.generate([
+          '--path=${tempDir.path}',
+          '--output=${tempDir.path}/resources',
+          '--lang=en',
+        ]);
 
-      final firstRun = enFile.readAsStringSync();
-      expect(firstRun.contains('// TODO: Translate text'), isFalse);
-      expect(firstRun.contains('"Hello": "Bonjour"'), isTrue);
-      expect(firstRun.contains('"World": "Monde"'), isTrue);
+        final firstRun = enFile.readAsStringSync();
+        expect(firstRun.contains('// TODO: Translate text'), isFalse);
+        expect(firstRun.contains('"Hello": "Bonjour"'), isTrue);
+        expect(firstRun.contains('"World": "Monde"'), isTrue);
 
-      sourceFile.writeAsStringSync(
-        '''
+        sourceFile.writeAsStringSync('''
 import 'package:language_helper/language_helper.dart';
 
 void main() {
@@ -313,36 +309,112 @@ void main() {
   'Hello'.tr;
   'New key'.tr;
 }
-''',
-      );
+''');
+
+        generator.generate([
+          '--path=${tempDir.path}',
+          '--output=${tempDir.path}/resources',
+          '--lang=en',
+        ]);
+
+        final fileContent = enFile.readAsStringSync();
+        final secondRunLines = fileContent.split('\n');
+        final helloIndex = secondRunLines.indexWhere(
+          (line) => line.contains('Bonjour'),
+        );
+        final worldIndex = secondRunLines.indexWhere(
+          (line) => line.contains('Monde'),
+        );
+        expect(helloIndex, isNonNegative);
+        expect(worldIndex, isNonNegative);
+        expect(secondRunLines[helloIndex - 1].contains('// TODO'), isFalse);
+        expect(secondRunLines[worldIndex - 1].contains('// TODO'), isFalse);
+
+        final newKeyIndex = secondRunLines.indexWhere(
+          (line) => line.contains('"New key"'),
+        );
+        expect(newKeyIndex, isNonNegative);
+        expect(
+          secondRunLines[newKeyIndex - 1].trim(),
+          equals('// TODO: Translate text'),
+        );
+      } finally {
+        tempDir.deleteSync(recursive: true);
+      }
+    },
+  );
+
+  test('JSON export merges language files and updates codes list', () {
+    final tempDir = Directory.systemTemp.createTempSync('lang_helper_json_');
+    try {
+      final generator = LanguageHelperGenerator();
+      final libDir = Directory('${tempDir.path}/lib')..createSync();
+      final sourceFile = File('${libDir.path}/page.dart');
+      sourceFile.writeAsStringSync('''
+import 'package:language_helper/language_helper.dart';
+
+void main() {
+  'Hello'.tr;
+  'World'.tr;
+}
+''');
+
+      final languagesDir = Directory(
+        '${tempDir.path}/assets/resources/language_helper/languages',
+      )..createSync(recursive: true);
+      final codesFile = File(
+        '${tempDir.path}/assets/resources/language_helper/codes.json',
+      )..createSync(recursive: true);
+      codesFile.writeAsStringSync(jsonEncode(['en']));
+
+      final enJson = File('${languagesDir.path}/en.json')
+        ..writeAsStringSync(jsonEncode(<String, String>{'Hello': 'Bonjour'}));
 
       generator.generate([
-        '--path=${tempDir.path}',
-        '--output=${tempDir.path}/resources',
-        '--lang=en',
+        '--path=${libDir.path}',
+        '--json',
+        '--output=${tempDir.path}/assets/resources',
+        '--lang=en,vi,en',
       ]);
 
-      final fileContent = enFile.readAsStringSync();
-      final secondRunLines = fileContent.split('\n');
-      final helloIndex = secondRunLines.indexWhere(
-        (line) => line.contains('Bonjour'),
-      );
-      final worldIndex = secondRunLines.indexWhere(
-        (line) => line.contains('Monde'),
-      );
-      expect(helloIndex, isNonNegative);
-      expect(worldIndex, isNonNegative);
-      expect(secondRunLines[helloIndex - 1].contains('// TODO'), isFalse);
-      expect(secondRunLines[worldIndex - 1].contains('// TODO'), isFalse);
+      final codes =
+          (jsonDecode(codesFile.readAsStringSync()) as List).cast<String>();
+      expect(codes, equals(['en', 'vi']));
 
-      final newKeyIndex = secondRunLines.indexWhere(
-        (line) => line.contains('"New key"'),
+      final enTranslations =
+          (jsonDecode(enJson.readAsStringSync()) as Map).cast<String, String>();
+      expect(enTranslations['Hello'], equals('Bonjour'));
+      expect(enTranslations['World'], equals('TODO: Translate text'));
+
+      final viJson = File('${languagesDir.path}/vi.json');
+      expect(viJson.existsSync(), isTrue);
+      final viTranslations =
+          (jsonDecode(viJson.readAsStringSync()) as Map).cast<String, String>();
+      expect(viTranslations['Hello'], equals('TODO: Translate text'));
+      expect(viTranslations['World'], equals('TODO: Translate text'));
+    } finally {
+      tempDir.deleteSync(recursive: true);
+    }
+  });
+
+  test('Language constant name is sanitized for boilerplate output', () {
+    final tempDir = Directory.systemTemp.createTempSync('lang_helper_const_');
+    try {
+      final generator = LanguageHelperGenerator();
+      final libDir = Directory('${tempDir.path}/lib')..createSync();
+
+      generator.generate([
+        '--path=${libDir.path}',
+        '--output=${tempDir.path}/resources',
+        '--lang=en-US',
+      ]);
+
+      final enUsFile = File(
+        '${tempDir.path}/resources/language_helper/languages/en-US.dart',
       );
-      expect(newKeyIndex, isNonNegative);
-      expect(
-        secondRunLines[newKeyIndex - 1].trim(),
-        equals('// TODO: Translate text'),
-      );
+      expect(enUsFile.existsSync(), isTrue);
+      final content = enUsFile.readAsStringSync();
+      expect(content.contains('const enUsLanguageData'), isTrue);
     } finally {
       tempDir.deleteSync(recursive: true);
     }
