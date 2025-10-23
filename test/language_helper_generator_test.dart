@@ -402,6 +402,15 @@ void main() {
     try {
       final generator = LanguageHelperGenerator();
       final libDir = Directory('${tempDir.path}/lib')..createSync();
+      File('${libDir.path}/page.dart').writeAsStringSync(
+        '''
+import 'package:language_helper/language_helper.dart';
+
+void main() {
+  'Hello'.tr;
+}
+''',
+      );
 
       generator.generate([
         '--path=${libDir.path}',
