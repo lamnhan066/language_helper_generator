@@ -385,15 +385,24 @@ LanguageData languageData = {
       if (line.endsWith(',')) {
         line = line.substring(0, line.length - 1);
       }
+      if (line.endsWith(';')) {
+        line = line.substring(0, line.length - 1);
+      }
+      final matches = entryRegex.allMatches(line);
+      if (matches.isEmpty) continue;
 
-      final match = entryRegex.firstMatch(line);
-      if (match == null) continue;
-
-      final key = json.decode('"${match.group(1)!}"') as String;
-      final value = json.decode('"${match.group(2)!}"') as String;
-      translations[key] = value;
-      if (inlineTodo || pendingTodoComment) todoKeys.add(key);
+      bool applyPendingTodo = pendingTodoComment;
       pendingTodoComment = false;
+      for (final match in matches) {
+        final key = json.decode('"${match.group(1)!}"') as String;
+        final value = json.decode('"${match.group(2)!}"') as String;
+        translations[key] = value;
+        final needsTodo = inlineTodo || applyPendingTodo;
+        if (needsTodo) {
+          todoKeys.add(key);
+          applyPendingTodo = false;
+        }
+      }
     }
 
     return _ExistingLanguageFile(
