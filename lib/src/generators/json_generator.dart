@@ -77,7 +77,7 @@ void _exportJsonGeneratedFile(Map<String, List<ParsedData>> data, String path) {
     map['@path_$relativePath'] = '';
     for (final text in values) {
       if (text.type == DataType.normal) {
-        map[text.noFormatedText] = text.noFormatedText;
+        map[text.noFormatedText] = '';
       }
     }
   });
