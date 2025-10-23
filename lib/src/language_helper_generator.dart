@@ -285,8 +285,10 @@ LanguageData languageData = {
         final existingValue = existing.translations[key];
         final value = existingValue ?? key;
         final encodedValue = json.encode(value);
+        final hasExistingTodo = existing.todoKeys.contains(key);
+        final isPlaceholder = existingValue == null || existingValue == key;
         final needsTodo =
-            existingValue == null || existing.todoKeys.contains(key);
+            existingValue == null || (hasExistingTodo && isPlaceholder);
         if (needsTodo) {
           buffer.writeln('  // TODO: Translate text');
         }
