@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:analyzer/dart/analysis/analysis_context_collection.dart';
+import 'package:analyzer/dart/analysis/results.dart';
 import 'package:args/args.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:language_helper_generator/src/generators/json_generator.dart'
@@ -81,22 +83,27 @@ class LanguageHelperGenerator {
     }
 
     final List<FileSystemEntity> allFiles = listAllFiles(Directory(path), []);
+    AnalysisContextCollection? contextCollection;
+    try {
+      contextCollection = AnalysisContextCollection(
+        includedPaths: [dir.absolute.path],
+      );
+    } catch (error) {
+      // ignore: avoid_print
+      print('Warning: Could not create analysis context. Falling back to raw parsing. $error');
+    }
 
     Map<String, List<ParsedData>> result = {};
     for (final file in allFiles) {
       // Only analyze the file ending with .dart
       if (file is File && file.path.endsWith('.dart')) {
         // get file path
-        final filePath = file.path;
+        final filePath = file.absolute.path;
 
         // Avoid getting data from this folder
         if (filePath.contains('language_helper/languages')) continue;
 
-        // Read and decode the file
-        final data = file.readAsBytesSync();
-        String text = const Utf8Codec().decode(data);
-
-        final parsed = parse(text);
+        final parsed = _parseFile(filePath, contextCollection);
         if (parsed.isNotEmpty) result[filePath] = parsed;
       }
     }
@@ -310,6 +317,36 @@ LanguageData languageData = {
       }
     }
     return result;
+  }
+
+  List<ParsedData> _parseFile(
+    String filePath,
+    AnalysisContextCollection? contextCollection,
+  ) {
+    List<ParsedData>? parsed;
+    if (contextCollection != null) {
+      try {
+        final context = contextCollection.contextFor(filePath);
+        final session = context.currentSession;
+        final unit = session.getParsedUnit(filePath);
+        if (unit is ParsedUnitResult) {
+          parsed = parseCompilationUnit(unit.unit);
+        }
+      } catch (error) {
+        // ignore: avoid_print
+        print('Warning: Analyzer failed for $filePath. Falling back to raw parsing. $error');
+      }
+    }
+
+    if (parsed != null) {
+      return parsed;
+    }
+
+    final file = File(filePath);
+    if (!file.existsSync()) return const [];
+    final data = file.readAsBytesSync();
+    final text = const Utf8Codec().decode(data);
+    return parse(text);
   }
 
   _ExistingLanguageFile _readExistingDartLanguageFile(File file) {

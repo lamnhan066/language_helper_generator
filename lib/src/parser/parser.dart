@@ -7,12 +7,15 @@ import 'package:language_helper_generator/src/models/parsed_data.dart';
 
 import 'visitor.dart';
 
-/// String parser, supports multiple lines
+/// Parse the provided raw Dart [text].
 List<ParsedData> parses(String rawText) {
-  // Parse the code
-  ParseStringResult result = parseString(content: rawText);
-  CompilationUnit compilationUnit = result.unit;
+  final ParseStringResult result = parseString(content: rawText);
+  final CompilationUnit compilationUnit = result.unit;
+  return parseCompilationUnit(compilationUnit);
+}
 
+/// Parse the provided [compilationUnit] using the analyzer AST.
+List<ParsedData> parseCompilationUnit(CompilationUnit compilationUnit) {
   // A visitor that collects string literals
   var visitor = StringLiteralVisitor();
   compilationUnit.accept(visitor);
