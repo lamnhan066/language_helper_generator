@@ -41,6 +41,12 @@ class LanguageHelperGenerator {
                 'Generate boilerplate translation files for the provided comma separated language codes.',
             valueHelp: 'en,vi',
           )
+          ..addFlag(
+            'ignore-commented',
+            help:
+                'Ignore commented-out duplicated or invalid entries in outputs.',
+            defaultsTo: false,
+          )
           ..addFlag('json', abbr: 'j', help: 'Export to json format')
           ..addFlag('help', abbr: 'h', help: 'Show help', negatable: false);
     final argResult = parser.parse(args);
@@ -54,6 +60,7 @@ class LanguageHelperGenerator {
     final path = argResult['path'] as String;
     String? output = argResult['output'];
     final languageCodes = _parseLanguageCodes(argResult['lang'] as String?);
+    final ignoreCommented = argResult['ignore-commented'] as bool;
     final result = _generate(path);
     if (result == null) return;
     if (argResult['json']) {
@@ -62,12 +69,14 @@ class LanguageHelperGenerator {
       _createLanguageDataAbstractFile(
         result,
         path: output ?? '$path/resources',
+        ignoreCommented: ignoreCommented,
       );
       _createLanguageDataFile(output ?? '$path/resources');
       _createLanguageBoilerplateFiles(
         result,
         languageCodes,
         path: output ?? '$path/resources',
+        ignoreCommented: ignoreCommented,
       );
     }
   }
@@ -132,6 +141,7 @@ class LanguageHelperGenerator {
   void _createLanguageDataAbstractFile(
     Map<String, List<ParsedData>> data, {
     String path = './lib/resources',
+    bool ignoreCommented = false,
   }) {
     print('Creating _generated.dart...');
 
@@ -172,6 +182,8 @@ class LanguageHelperGenerator {
             listAllUniqueText.add(parsed);
           }
         }
+
+        if (needsComment.isNotEmpty && ignoreCommented) continue;
 
         languageData.writeln(
           '  $needsComment${parsed.text}: ${parsed.text},$needsEndComment',
@@ -261,6 +273,7 @@ LanguageData languageData = {
     Map<String, List<ParsedData>> data,
     List<String> languageCodes, {
     required String path,
+    bool ignoreCommented = false,
   }) {
     if (languageCodes.isEmpty) return;
 
@@ -344,6 +357,9 @@ LanguageData languageData = {
           }
 
           if (commentOut) {
+            if (ignoreCommented) {
+              continue;
+            }
             buffer.writeln(
               '  $commentPrefix$keyLiteral: $valueExpression,$commentSuffix',
             );

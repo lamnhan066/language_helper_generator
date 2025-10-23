@@ -412,6 +412,40 @@ void main() {
     }
   });
 
+  test('Language boilerplate hides commented entries when ignore flag set', () {
+    final tempDir = Directory.systemTemp.createTempSync('lang_helper_ignore_');
+    try {
+      final generator = LanguageHelperGenerator();
+      final sourceFile = File('${tempDir.path}/page.dart');
+      sourceFile.writeAsStringSync('''
+import 'package:language_helper/language_helper.dart';
+
+void main() {
+  'Hello'.tr;
+  'Hello'.tr;
+  'World'.tr;
+}
+''');
+
+      generator.generate([
+        '--path=${tempDir.path}',
+        '--output=${tempDir.path}/resources',
+        '--lang=en',
+        '--ignore-commented',
+      ]);
+
+      final enFile = File(
+        '${tempDir.path}/resources/language_helper/languages/en.dart',
+      );
+      final content = enFile.readAsStringSync();
+      expect(content.contains('Duplicated'), isFalse);
+      final helloMatches = RegExp('"Hello"').allMatches(content).length;
+      expect(helloMatches, equals(1));
+    } finally {
+      tempDir.deleteSync(recursive: true);
+    }
+  });
+
   test('Language constant name is sanitized for boilerplate output', () {
     final tempDir = Directory.systemTemp.createTempSync('lang_helper_const_');
     try {
