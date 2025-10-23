@@ -380,15 +380,18 @@ void main() {
 
       final enTranslations =
           (jsonDecode(enJson.readAsStringSync()) as Map).cast<String, String>();
+      final pathKey = '@path_${sourceFile.path}';
+      expect(enTranslations[pathKey], equals(''));
       expect(enTranslations['Hello'], equals('Bonjour'));
-      expect(enTranslations['World'], equals('TODO: Translate text'));
+      expect(enTranslations['World'], equals(''));
 
       final viJson = File('${languagesDir.path}/vi.json');
       expect(viJson.existsSync(), isTrue);
       final viTranslations =
           (jsonDecode(viJson.readAsStringSync()) as Map).cast<String, String>();
-      expect(viTranslations['Hello'], equals('TODO: Translate text'));
-      expect(viTranslations['World'], equals('TODO: Translate text'));
+      expect(viTranslations[pathKey], equals(''));
+      expect(viTranslations['Hello'], equals(''));
+      expect(viTranslations['World'], equals(''));
     } finally {
       tempDir.deleteSync(recursive: true);
     }

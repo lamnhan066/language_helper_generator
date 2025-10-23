@@ -73,17 +73,15 @@ void _exportJsonGeneratedFile(
   final desPath = '$path/language_helper/languages/';
   final desFile = File('${desPath}_generated.json');
   desFile.createSync(recursive: true);
-  final map = <String, String>{};
-  var index = 0;
-  for (final entry in data.entries) {
-    map['@path_$index'] = entry.key;
-    index += 1;
-    for (final text in entry.value) {
+  final map = <String, dynamic>{};
+  data.forEach((filePath, values) {
+    map['@path_$filePath'] = '';
+    for (final text in values) {
       if (text.type == DataType.normal) {
         map[text.noFormatedText] = text.noFormatedText;
       }
     }
-  }
+  });
 
   JsonEncoder encoder = const JsonEncoder.withIndent('  ');
   desFile.writeAsStringSync(encoder.convert(map));
@@ -98,9 +96,6 @@ void _exportJsonLanguageFiles(
 ) {
   if (languageCodes.isEmpty) return;
 
-  final keys = _collectUniqueTexts(data);
-  if (keys.isEmpty) return;
-
   final languagesDir = Directory('$path/language_helper/languages');
   languagesDir.createSync(recursive: true);
 
@@ -108,7 +103,7 @@ void _exportJsonLanguageFiles(
     if (code.isEmpty) continue;
     final file = File('${languagesDir.path}/$code.json');
     final existed = file.existsSync();
-    Map<String, String> existing = {};
+    final existing = <String, String>{};
     if (existed) {
       try {
         final content = file.readAsStringSync();
@@ -121,15 +116,25 @@ void _exportJsonLanguageFiles(
           });
         }
       } catch (_) {
-        existing = {};
+        existing.clear();
       }
     }
 
     final merged = <String, String>{};
-    for (final key in keys) {
-      final value = existing[key] ?? 'TODO: Translate text';
-      merged[key] = value;
-    }
+    final seenTexts = <String>{};
+
+    data.forEach((filePath, values) {
+      final pathKey = '@path_$filePath';
+      merged[pathKey] = existing[pathKey] ?? '';
+
+      for (final parsed in values) {
+        if (parsed.type != DataType.normal) continue;
+        if (!seenTexts.add(parsed.noFormatedText)) continue;
+        final key = parsed.noFormatedText;
+        final value = existing.containsKey(key) ? existing[key]! : '';
+        merged[key] = value;
+      }
+    });
 
     JsonEncoder encoder = const JsonEncoder.withIndent('  ');
     file.writeAsStringSync(encoder.convert(merged));
@@ -137,20 +142,4 @@ void _exportJsonLanguageFiles(
       '${existed ? 'Updated' : 'Created'} language file: ${file.path}',
     );
   }
-}
-
-List<String> _collectUniqueTexts(
-  Map<String, List<ParsedData>> data,
-) {
-  final seen = <String>{};
-  final result = <String>[];
-  for (final entry in data.entries) {
-    for (final parsed in entry.value) {
-      if (parsed.type != DataType.normal) continue;
-      if (seen.add(parsed.noFormatedText)) {
-        result.add(parsed.noFormatedText);
-      }
-    }
-  }
-  return result;
 }
