@@ -1,3 +1,8 @@
+## 0.6.1
+
+* Add a `--lang` flag to scaffold and merge language boilerplate files for both Dart maps and JSON exports, preserving existing translations and marking new keys with TODO comments.
+* Update the JSON generator to refresh `codes.json` when re-running.
+
 ## 0.6.0
 
 * Bump dart min sdk to 3.7.0.

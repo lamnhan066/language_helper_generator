@@ -35,6 +35,14 @@ If you want to export as Json format to use as `LanguageDataProvider.asset()` an
 dart run language_helper_generator --json
 ```
 
+If you want to scaffold translation files for specific languages, add the `--lang` option with a comma separated list of language codes. Existing translations are preserved and new keys are marked with `// TODO: Translate text` (JSON files use the string `TODO: Translate text` as a placeholder).
+
+```cmd
+dart run language_helper_generator --lang=en,vi
+```
+
+You can combine `--lang` with any other options, including `--json` and `--output`.
+
 ## Generated Data
 
 ### With the `json` flag
@@ -48,6 +56,7 @@ This command will generate a structure base files with this format (--path=".ass
 |   |    |    |--- codes.json
 |   |    |    |--- languages
 |   |    |    |   |--- _generated.json ; This file will be overwritten when re-generating
+|   |    |    |   |--- <code>.json     ; Created when using --lang and keeps your edits
 ```
 
 ### Without the `json` flag
@@ -61,6 +70,7 @@ This command will generate a structure base files with this format (--path=".lib
 |   |    |    |--- language_data.dart
 |   |    |    |--- languages
 |   |    |    |    |--- _generated.dart   ; This file will be overwritten when re-generating
+|   |    |    |    |--- <code>.dart       ; Created when using --lang and keeps your edits
 ```
 
 * `_generated.dart`: Contains your base language from your all `.dart` files. This file will be re-generated when you run the command.
