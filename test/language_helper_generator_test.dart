@@ -284,6 +284,8 @@ void main() {
         )..createSync(recursive: true);
         final enFile = File('${languagesDir.path}/en.dart');
         enFile.writeAsStringSync('''
+import 'package:language_helper/language_helper.dart';
+
 const enLanguageData = <String, dynamic>{
   "World": LanguageConditions(param: 'param', conditions: {
     '_': 'xxx',
@@ -308,6 +310,12 @@ const enLanguageData = <String, dynamic>{
         expect(firstRun.contains('"$encodedPath":'), isTrue);
         expect(firstRun.contains('"Hello": "Bonjour"'), isTrue);
         expect(firstRun.contains('LanguageConditions('), isTrue);
+        expect(
+          firstRun.contains(
+            "import 'package:language_helper/language_helper.dart';",
+          ),
+          isTrue,
+        );
 
         sourceFile.writeAsStringSync('''
 import 'package:language_helper/language_helper.dart';
@@ -333,6 +341,12 @@ void main() {
           isFalse,
         );
         expect(fileContent.contains('LanguageConditions('), isTrue);
+        expect(
+          fileContent.contains(
+            "import 'package:language_helper/language_helper.dart';",
+          ),
+          isTrue,
+        );
         expect(
           fileContent.contains(
             '// TODO: Translate text\n  "New key": "New key",',
