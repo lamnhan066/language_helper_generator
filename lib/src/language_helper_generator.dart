@@ -371,8 +371,7 @@ class LanguageHelperGenerator {
           final key = parsed.noFormatedText;
           final keyLiteral = _stringLiteral(key);
           final existingEntry = existing.entries[key];
-          final valueExpression =
-              existingEntry?.expression ?? _stringLiteral('');
+          final valueExpression = existingEntry?.expression ?? keyLiteral;
           final existingStringValue = existingEntry?.stringValue;
 
           String commentPrefix = '';
