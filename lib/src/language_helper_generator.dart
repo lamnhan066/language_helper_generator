@@ -194,7 +194,7 @@ class LanguageHelperGenerator {
 
     fileBuffer
       ..writeln()
-      ..writeln('LazyLanguageData languageData = {')
+      ..writeln('final LazyLanguageData languageData = {')
       ..write(entriesBuffer.toString())
       ..writeln('};');
 
