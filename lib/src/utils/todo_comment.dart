@@ -1,5 +1,3 @@
-String todoComment(String code) =>
-    '// TODO: Translate this text to $code language';
+String todoComment(String code) => '// TODO: Add `$code` language translation';
 
-bool containsTodoComment(String line) =>
-    line.contains('TODO: Translate this text to');
+bool containsTodoComment(String line) => line.contains('// TODO:');
