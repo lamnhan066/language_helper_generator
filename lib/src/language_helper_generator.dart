@@ -80,8 +80,9 @@ class LanguageHelperGenerator {
 
     final path = argResult['path'] as String;
     String? output = argResult['output'];
-    final languageCodes =
-        _parseLanguageCodes(argResult['languages'] as String?);
+    final languageCodes = _parseLanguageCodes(
+      argResult['languages'] as String?,
+    );
     final ignoreTodoCodes = _parseOptionalLanguageCodes(
       argResult['ignore-todo'] as String?,
     );
@@ -338,6 +339,7 @@ class LanguageHelperGenerator {
         ..writeln('// ignore_for_file: prefer_single_quotes');
 
       if (existing.imports.isNotEmpty) {
+        buffer.writeln();
         for (final import in existing.imports) {
           buffer.writeln(import);
         }
