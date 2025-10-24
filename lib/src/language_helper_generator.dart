@@ -6,7 +6,6 @@ import 'package:analyzer/dart/analysis/results.dart';
 import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:args/args.dart';
-import 'package:dart_style/dart_style.dart';
 import 'package:language_helper_generator/src/generators/json_generator.dart'
     as j;
 import 'package:language_helper_generator/src/models/data_type.dart';
@@ -54,6 +53,21 @@ class LanguageHelperGenerator {
                 'Ignore commented-out duplicated or invalid entries in outputs.',
             defaultsTo: false,
           )
+          ..addFlag(
+            'dart-format',
+            help: 'Running `dart format` for the generated files',
+            defaultsTo: true,
+          )
+          ..addFlag(
+            'dart-fix',
+            help: 'Running `dart fix --apply` for the generated files',
+            defaultsTo: true,
+          )
+          ..addFlag(
+            'fvm',
+            help: 'Should use `fvm` prefix when running the `dart` commands',
+            defaultsTo: false,
+          )
           ..addFlag('json', abbr: 'j', help: 'Export to json format')
           ..addFlag('help', abbr: 'h', help: 'Show help', negatable: false);
     final argResult = parser.parse(args);
@@ -71,19 +85,38 @@ class LanguageHelperGenerator {
       argResult['ignore-todo'] as String?,
     );
     final ignoreCommented = argResult['ignore-invalid'] as bool;
+    final dartFormat = argResult['dart-format'] as bool;
+    final dartFix = argResult['dart-fix'] as bool;
+    final fvm = argResult['fvm'] as bool;
     final result = _generate(path);
     if (result == null) return;
     if (argResult['json']) {
       _exportJson(result, output ?? '$path/../assets/resources', languageCodes);
     } else {
-      _createLanguageDataFile(languageCodes, path: output ?? '$path/resources');
+      final outputPath = output ?? '$path/resources';
+      _createLanguageDataFile(languageCodes, path: outputPath);
       _createLanguageBoilerplateFiles(
         result,
         languageCodes,
-        path: output ?? '$path/resources',
+        path: outputPath,
         ignoreCommented: ignoreCommented,
         ignoreTodoCodes: ignoreTodoCodes,
       );
+
+      if (dartFormat) {
+        if (fvm) {
+          Process.runSync('fvm', ['dart', 'format', outputPath]);
+        } else {
+          Process.runSync('dart', ['format', outputPath]);
+        }
+      }
+      if (dartFix) {
+        if (fvm) {
+          Process.runSync('fvm', ['dart', 'fix', outputPath, '--apply']);
+        } else {
+          Process.runSync('dart', ['fix', outputPath, '--apply']);
+        }
+      }
     }
   }
 
@@ -208,11 +241,7 @@ class LanguageHelperGenerator {
       ..write(entriesBuffer.toString())
       ..writeln('};');
 
-    desFile.writeAsStringSync(
-      DartFormatter(
-        languageVersion: DartFormatter.latestLanguageVersion,
-      ).format(fileBuffer.toString()),
-    );
+    desFile.writeAsStringSync(fileBuffer.toString());
 
     print('Created `language_data.dart`');
   }
@@ -285,8 +314,7 @@ class LanguageHelperGenerator {
         ..writeln(
           '//==============================================================================',
         )
-        ..writeln()
-        ..writeln('// ignore_for_file: prefer_single_quotes');
+        ..writeln();
 
       if (existing.imports.isNotEmpty) {
         for (final import in existing.imports) {
@@ -369,11 +397,7 @@ class LanguageHelperGenerator {
 
       buffer.writeln('};');
 
-      final fileContent = DartFormatter(
-        languageVersion: DartFormatter.latestLanguageVersion,
-      ).format(buffer.toString());
-
-      file.writeAsStringSync(fileContent);
+      file.writeAsStringSync(buffer.toString());
     }
   }
 
