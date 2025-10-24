@@ -168,7 +168,7 @@ class LanguageHelperGenerator {
       if (enumName == null || !seenEnumNames.add(enumName)) continue;
       final constName = _languageConstName(code);
       if (constName == 'languageData') continue;
-      entriesBuffer.writeln('  LanguageCodes.$enumName: $constName,');
+      entriesBuffer.writeln('  LanguageCodes.$enumName: () => $constName,');
       if (languageImportSet.add(code)) {
         languageImportList.add(code);
       }
@@ -176,7 +176,7 @@ class LanguageHelperGenerator {
 
     if (entriesBuffer.isEmpty) {
       final constName = _languageConstName('en');
-      entriesBuffer.writeln('  LanguageCodes.en: $constName,');
+      entriesBuffer.writeln('  LanguageCodes.en: () => $constName,');
       if (languageImportSet.add('en')) {
         languageImportList.add('en');
       }
@@ -193,7 +193,7 @@ class LanguageHelperGenerator {
 
     fileBuffer
       ..writeln()
-      ..writeln('LanguageData languageData = {')
+      ..writeln('LazyLanguageData languageData = {')
       ..write(entriesBuffer.toString())
       ..writeln('};');
 
