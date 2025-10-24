@@ -42,6 +42,12 @@ class LanguageHelperGenerator {
             defaultsTo: 'en',
             valueHelp: 'en,vi',
           )
+          ..addOption(
+            'ignore-todo',
+            help:
+                'Comma separated language codes that should not receive TODO comments when generating boilerplate.',
+            valueHelp: 'en,vi',
+          )
           ..addFlag(
             'ignore-invalid',
             help:
@@ -61,6 +67,9 @@ class LanguageHelperGenerator {
     final path = argResult['path'] as String;
     String? output = argResult['output'];
     final languageCodes = _parseLanguageCodes(argResult['lang'] as String?);
+    final ignoreTodoCodes = _parseOptionalLanguageCodes(
+      argResult['ignore-todo'] as String?,
+    );
     final ignoreCommented = argResult['ignore-invalid'] as bool;
     final result = _generate(path);
     if (result == null) return;
@@ -73,6 +82,7 @@ class LanguageHelperGenerator {
         languageCodes,
         path: output ?? '$path/resources',
         ignoreCommented: ignoreCommented,
+        ignoreTodoCodes: ignoreTodoCodes,
       );
     }
   }
@@ -230,11 +240,24 @@ class LanguageHelperGenerator {
     return codes.toList();
   }
 
+  Set<String> _parseOptionalLanguageCodes(String? raw) {
+    if (raw == null || raw.trim().isEmpty) return const <String>{};
+    final codes = <String>{};
+    for (final segment in raw.split(',')) {
+      final code = segment.trim();
+      if (code.isNotEmpty) {
+        codes.add(code);
+      }
+    }
+    return codes;
+  }
+
   void _createLanguageBoilerplateFiles(
     Map<String, List<ParsedData>> data,
     List<String> languageCodes, {
     required String path,
     bool ignoreCommented = false,
+    Set<String> ignoreTodoCodes = const <String>{},
   }) {
     if (languageCodes.isEmpty) return;
 
@@ -337,7 +360,7 @@ class LanguageHelperGenerator {
               (existingEntry == null || (hasExistingTodo && isPlaceholder)) &&
               !key.startsWith('@path_');
 
-          if (needsTodo) {
+          if (needsTodo && !ignoreTodoCodes.contains(code)) {
             buffer.writeln('  ${todoComment(code)}');
           }
           buffer.writeln('  $keyLiteral: $valueExpression,');
