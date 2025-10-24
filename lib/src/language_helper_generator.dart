@@ -525,43 +525,6 @@ class LanguageHelperGenerator {
     buffer.write('LanguageData');
     return buffer.toString();
   }
-
-  /// This file should not be generated. Just add a doc to let users know
-  /// how to add the default language keys to `analysisKeys`
-  /// in the `initial` of language_helper
-  void createLanguageHelperFile() {
-    final desFile = File(
-      './lib/services/language_helper/language_helper.g.dart',
-    );
-
-    // Return if the file already exists
-    if (desFile.existsSync()) return;
-
-    desFile.createSync(recursive: true);
-
-    const data = '''
-import 'package:flutter/foundation.dart';
-import 'package:language_helper/language_helper.dart';
-
-import '../../resources/language_helper/language_data.g.dart';
-
-final languageHelper = LanguageHelper.instance;
-
-Future<void> languageHelperInitial() async {
-  final defaultLanguage =
-      (languageData[LanguageCodes.en] ?? const <String, dynamic>{})
-          as Map<String, dynamic>;
-  languageHelper.initial(
-    data: languageData,
-    analysisKeys: defaultLanguage.keys,
-    initialCode: LanguageCodes.en,
-    isDebug: !kReleaseMode,
-  );
-}
-''';
-
-    desFile.writeAsStringSync(data);
-  }
 }
 
 class _ExistingLanguageFile {
