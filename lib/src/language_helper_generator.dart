@@ -145,8 +145,9 @@ class LanguageHelperGenerator {
 
     // Return if the file already exists
     if (desFile.existsSync()) {
-      print('The `language_data.dart` existed => Done');
-      return;
+      print('Recreating `language_data.dart`...');
+    } else {
+      print('Creating `language_data.dart`...');
     }
 
     desFile.createSync(recursive: true);
