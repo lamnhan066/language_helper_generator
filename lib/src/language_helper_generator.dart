@@ -284,7 +284,7 @@ class LanguageHelperGenerator {
       }
     }
     if (codes.isEmpty) return <String>['en'];
-    return codes.toList();
+    return codes.toList()..sort((a, b) => a.compareTo(b));
   }
 
   Set<String> _parseOptionalLanguageCodes(String? raw) {
