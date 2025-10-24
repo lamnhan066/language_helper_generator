@@ -35,7 +35,7 @@ class LanguageHelperGenerator {
             valueHelp: 'Default --no-json: `--path`; Default --json: ./assets',
           )
           ..addOption(
-            'lang',
+            'languages',
             help:
                 'Generate boilerplate translation files for the provided comma separated language codes.',
             defaultsTo: 'en',
@@ -80,7 +80,8 @@ class LanguageHelperGenerator {
 
     final path = argResult['path'] as String;
     String? output = argResult['output'];
-    final languageCodes = _parseLanguageCodes(argResult['lang'] as String?);
+    final languageCodes =
+        _parseLanguageCodes(argResult['languages'] as String?);
     final ignoreTodoCodes = _parseOptionalLanguageCodes(
       argResult['ignore-todo'] as String?,
     );

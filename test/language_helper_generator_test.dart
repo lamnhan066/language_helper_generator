@@ -298,7 +298,7 @@ const enLanguageData = <String, dynamic>{
         generator.generate([
           '--path=${tempDir.path}',
           '--output=${tempDir.path}/resources',
-          '--lang=en',
+          '--languages=en',
         ]);
 
         final firstRun = enFile.readAsStringSync();
@@ -331,7 +331,7 @@ void main() {
         generator.generate([
           '--path=${tempDir.path}',
           '--output=${tempDir.path}/resources',
-          '--lang=en',
+          '--languages=en',
         ]);
 
         final fileContent = enFile.readAsStringSync();
@@ -347,7 +347,7 @@ void main() {
           isTrue,
         );
         expect(
-          fileContent.contains('${todoComment('en')}\n  "New key": "",'),
+          fileContent.contains('${todoComment('en')}\n  "New key": "New key",'),
           isTrue,
         );
       } finally {
@@ -386,7 +386,7 @@ void main() {
         '--path=${libDir.path}',
         '--json',
         '--output=${tempDir.path}/assets/resources',
-        '--lang=en,vi,en',
+        '--languages=en,vi,en',
       ]);
 
       final codes =
@@ -430,7 +430,7 @@ void main() {
       generator.generate([
         '--path=${tempDir.path}',
         '--output=${tempDir.path}/resources',
-        '--lang=en',
+        '--languages=en',
         '--ignore-invalid',
       ]);
 
@@ -439,7 +439,7 @@ void main() {
       );
       final content = enFile.readAsStringSync();
       expect(content.contains('Duplicated'), isFalse);
-      expect(content.contains('"Hello": ""'), isTrue);
+      expect(content.contains('"Hello": "Hello"'), isTrue);
     } finally {
       tempDir.deleteSync(recursive: true);
     }
@@ -461,7 +461,7 @@ void main() {
       generator.generate([
         '--path=${libDir.path}',
         '--output=${tempDir.path}/resources',
-        '--lang=en-US',
+        '--languages=en-US',
       ]);
 
       final enUsFile = File(
