@@ -185,10 +185,10 @@ packages:
     dependency: "direct main"
     description:
       name: language_helper
-      sha256: "9ebc634c00e506d7aa77bd62da9180298e5b0b878b022e0e1e2fd9b3c3d69af6"
+      sha256: "15e77fb03c77f3263f4a6bdd50e34af77be092bfd24ec95303a005db535ae698"
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.2"
+    version: "0.12.3"
   language_helper_generator:
     dependency: "direct main"
     description:
@@ -228,6 +228,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
+  lite_logger:
+    dependency: transitive
+    description:
+      name: lite_logger
+      sha256: "93b4c2110053322319cefe6c289dc988dfed7148589ba3ef844e204b493d9bc8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   matcher:
     dependency: transitive
     description:
