@@ -12,73 +12,16 @@ import 'package:language_helper_generator/src/models/data_type.dart';
 import 'package:language_helper_generator/src/models/parsed_data.dart';
 import 'package:language_helper_generator/src/parser/parser.dart';
 import 'package:language_helper_generator/src/utils/list_all_files.dart';
+import 'package:language_helper_generator/src/utils/simple_logger.dart';
 import 'package:language_helper_generator/src/utils/todo_comment.dart';
 import 'package:path/path.dart' as p;
 
-// ANSI escape codes for colors
-const String _reset = '\x1B[0m';
-const String _blue = '\x1B[34m';
-const String _yellow = '\x1B[33m';
-const String _red = '\x1B[31m';
-const String _gray = '\x1B[90m';
-const String _green = '\x1B[32m';
-const String _cyan = '\x1B[36m';
-
-// Emoji/character icons
-const String _warningIcon = '⚠️';
-const String _errorIcon = '❌';
-const String _successIcon = '✅';
-const String _infoIcon = 'ℹ️';
-const String _debugIcon = '🐛';
-const String _stepIcon = '⚙️';
-
-enum _LogLevel { info, warning, error, debug, success, step }
-
 class LanguageHelperGenerator {
-  void _log(_LogLevel level, String message) {
-    final timestamp = _getTimestamp();
-    String color = _reset;
-    String icon = '';
+  late final SimpleLogger logger;
 
-    switch (level) {
-      case _LogLevel.info:
-        color = _blue;
-        icon = _infoIcon;
-        break;
-      case _LogLevel.warning:
-        color = _yellow;
-        icon = _warningIcon;
-        break;
-      case _LogLevel.error:
-        color = _red;
-        icon = _errorIcon;
-        break;
-      case _LogLevel.debug:
-        color = _gray;
-        icon = _debugIcon;
-        break;
-      case _LogLevel.success:
-        color = _green;
-        icon = _successIcon;
-        break;
-      case _LogLevel.step:
-        color = _cyan;
-        icon = _stepIcon;
-        break;
-    }
-    // ignore: avoid_print
-    print(
-      '$color$timestamp $icon [${level.name.toUpperCase()}] $message$_reset',
-    );
-  }
-
-  String _getTimestamp() {
-    final now = DateTime.now();
-    return '[${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}]';
-  }
+  void _log(LogLevel level, String message) => logger.log(message, level);
 
   void generate(List<String> args) {
-    _log(_LogLevel.info, 'Starting language helper code generation...');
     final parser =
         ArgParser()
           ..addOption(
@@ -136,18 +79,33 @@ class LanguageHelperGenerator {
             defaultsTo: false,
             help: 'Export translations to JSON files instead of Dart files.',
           )
+          ..addFlag(
+            'verbose',
+            abbr: 'v',
+            help: 'Show verbose logs',
+            negatable: false,
+            defaultsTo: false,
+          )
           ..addFlag('help', abbr: 'h', help: 'Show help', negatable: false);
     final argResult = parser.parse(args);
 
+    if (argResult.flag('verbose')) {
+      logger = SimpleLogger(verbose: true);
+    } else {
+      logger = SimpleLogger(verbose: false);
+    }
+
+    _log(LogLevel.info, 'Starting language helper code generation...');
+
     // Show helps
     if (argResult.flag('help')) {
-      _log(_LogLevel.info, 'Showing help message.');
+      _log(LogLevel.info, 'Showing help message.');
       // ignore: avoid_print
       print(parser.usage);
       return;
     }
 
-    _log(_LogLevel.info, 'Arguments parsed: $args');
+    _log(LogLevel.info, 'Arguments parsed: $args');
 
     final path = argResult['path'] as String;
     String? output = argResult['output'];
@@ -162,27 +120,27 @@ class LanguageHelperGenerator {
     final dartFix = argResult['dart-fix'] as bool;
     final fvm = argResult['fvm'] as bool;
 
-    _log(_LogLevel.debug, 'Path: $path');
-    _log(_LogLevel.debug, 'Output: ${output ?? 'default'}');
-    _log(_LogLevel.debug, 'Languages: ${languageCodes.join(', ')}');
-    _log(_LogLevel.debug, 'Ignore TODO: ${ignoreTodoCodes.join(', ')}');
-    _log(_LogLevel.debug, 'Include Invalid: $includeInvalid');
-    _log(_LogLevel.debug, 'Dart Format: $dartFormat');
-    _log(_LogLevel.debug, 'Dart Fix: $dartFix');
-    _log(_LogLevel.debug, 'FVM: $fvm');
-    _log(_LogLevel.debug, 'Export to JSON: ${argResult['json']}');
+    _log(LogLevel.debug, 'Path: $path');
+    _log(LogLevel.debug, 'Output: ${output ?? 'default'}');
+    _log(LogLevel.debug, 'Languages: ${languageCodes.join(', ')}');
+    _log(LogLevel.debug, 'Ignore TODO: ${ignoreTodoCodes.join(', ')}');
+    _log(LogLevel.debug, 'Include Invalid: $includeInvalid');
+    _log(LogLevel.debug, 'Dart Format: $dartFormat');
+    _log(LogLevel.debug, 'Dart Fix: $dartFix');
+    _log(LogLevel.debug, 'FVM: $fvm');
+    _log(LogLevel.debug, 'Export to JSON: ${argResult['json']}');
 
     final result = _generate(path);
     if (result == null) {
-      _log(_LogLevel.error, 'Generation failed: No data parsed.');
+      _log(LogLevel.error, 'Generation failed: No data parsed.');
       return;
     }
     if (argResult['json']) {
-      _log(_LogLevel.step, 'Exporting to JSON files...');
+      _log(LogLevel.step, 'Exporting to JSON files...');
       _exportJson(result, output ?? '$path/../assets/resources', languageCodes);
-      _log(_LogLevel.success, 'JSON export complete.');
+      _log(LogLevel.success, 'JSON export complete.');
     } else {
-      _log(_LogLevel.step, 'Generating Dart language files...');
+      _log(LogLevel.step, 'Generating Dart language files...');
       final date = DateTime.now().toIso8601String();
       final outputPath = output ?? '$path/resources';
       _createLanguageDataFile(languageCodes, path: outputPath, date: date);
@@ -196,40 +154,40 @@ class LanguageHelperGenerator {
       );
 
       if (dartFormat) {
-        _log(_LogLevel.step, 'Running dart format on $outputPath...');
+        _log(LogLevel.step, 'Running dart format on $outputPath...');
         if (fvm) {
           Process.runSync('fvm', ['dart', 'format', outputPath]);
         } else {
           Process.runSync('dart', ['format', outputPath]);
         }
-        _log(_LogLevel.success, 'Dart format complete.');
+        _log(LogLevel.success, 'Dart format complete.');
       }
       if (dartFix) {
-        _log(_LogLevel.step, 'Running dart fix --apply on $outputPath...');
+        _log(LogLevel.step, 'Running dart fix --apply on $outputPath...');
         if (fvm) {
           Process.runSync('fvm', ['dart', 'fix', outputPath, '--apply']);
         } else {
           Process.runSync('dart', ['fix', outputPath, '--apply']);
         }
-        _log(_LogLevel.success, 'Dart fix complete.');
+        _log(LogLevel.success, 'Dart fix complete.');
       }
-      _log(_LogLevel.success, 'Dart language file generation complete.');
+      _log(LogLevel.success, 'Dart language file generation complete.');
     }
-    _log(_LogLevel.success, 'Language helper code generation finished.');
+    _log(LogLevel.success, 'Language helper code generation finished.');
   }
 
   Map<String, List<ParsedData>>? _generate([String path = './lib/']) {
-    _log(_LogLevel.step, 'Parsing language data from directory: $path...');
+    _log(LogLevel.step, 'Parsing language data from directory: $path...');
 
     final dir = Directory(path);
     if (!dir.existsSync()) {
       _log(
-        _LogLevel.error,
+        LogLevel.error,
         'Error: The specified directory "$path" does not exist.',
       );
       return null;
     }
-    _log(_LogLevel.info, 'Directory "$path" exists.');
+    _log(LogLevel.info, 'Directory "$path" exists.');
 
     final List<FileSystemEntity> allFiles = listAllFiles(dir, []);
     AnalysisContextCollection? contextCollection;
@@ -237,17 +195,17 @@ class LanguageHelperGenerator {
       contextCollection = AnalysisContextCollection(
         includedPaths: [p.normalize(dir.absolute.path)],
       );
-      _log(_LogLevel.info, 'Analysis context created successfully.');
+      _log(LogLevel.info, 'Analysis context created successfully.');
     } catch (error) {
       _log(
-        _LogLevel.warning,
+        LogLevel.warning,
         'Warning: Could not create analysis context. Falling back to raw parsing. Error: $error',
       );
     }
 
     Map<String, List<ParsedData>> result = {};
     _log(
-      _LogLevel.step,
+      LogLevel.step,
       'Found ${allFiles.length} files. Starting file analysis...',
     );
     for (final file in allFiles) {
@@ -258,16 +216,16 @@ class LanguageHelperGenerator {
         // Avoid getting data from this folder
         if (normalizedPath.contains('language_helper/languages')) {
           _log(
-            _LogLevel.debug,
+            LogLevel.debug,
             'Skipping language helper file: $normalizedPath',
           );
           continue;
         }
 
-        _log(_LogLevel.debug, 'Parsing file: $normalizedPath');
+        _log(LogLevel.debug, 'Parsing file: $normalizedPath');
         final parsed = _parseFile(normalizedPath, contextCollection);
         if (parsed.isEmpty) {
-          _log(_LogLevel.debug, 'No language data found in $normalizedPath.');
+          _log(LogLevel.debug, 'No language data found in $normalizedPath.');
           continue;
         }
 
@@ -278,14 +236,14 @@ class LanguageHelperGenerator {
 
         result[relativePath] = parsed;
         _log(
-          _LogLevel.debug,
+          LogLevel.debug,
           'Extracted ${parsed.length} entries from $relativePath.',
         );
       }
     }
 
     _log(
-      _LogLevel.success,
+      LogLevel.success,
       'Finished parsing. Total files with language data: ${result.length}.',
     );
 
@@ -307,7 +265,7 @@ class LanguageHelperGenerator {
     required String date,
   }) {
     _log(
-      _LogLevel.step,
+      LogLevel.step,
       'Starting creation of `language_data.dart` at $path/language_helper/language_data.dart...',
     );
 
@@ -315,18 +273,18 @@ class LanguageHelperGenerator {
 
     if (desFile.existsSync()) {
       _log(
-        _LogLevel.info,
+        LogLevel.info,
         'File `language_data.dart` already exists. Recreating...',
       );
     } else {
       _log(
-        _LogLevel.info,
+        LogLevel.info,
         'File `language_data.dart` does not exist. Creating new file...',
       );
     }
 
     desFile.createSync(recursive: true);
-    _log(_LogLevel.info, 'Directory for `language_data.dart` ensured.');
+    _log(LogLevel.info, 'Directory for `language_data.dart` ensured.');
 
     final entriesBuffer = StringBuffer();
     final dedupedCodes = <String>{
@@ -391,7 +349,7 @@ class LanguageHelperGenerator {
 
     desFile.writeAsStringSync(fileBuffer.toString());
 
-    _log(_LogLevel.success, 'Successfully created `language_data.dart`.');
+    _log(LogLevel.success, 'Successfully created `language_data.dart`.');
   }
 
   void _exportJson(
@@ -400,20 +358,17 @@ class LanguageHelperGenerator {
     List<String> languageCodes,
   ) {
     _log(
-      _LogLevel.debug,
+      LogLevel.debug,
       'Exporting JSON with path: $path, language codes: $languageCodes',
     );
     j.exportJson(data, path, languageCodes: languageCodes);
-    _log(_LogLevel.success, 'JSON export completed.');
+    _log(LogLevel.success, 'JSON export completed.');
   }
 
   List<String> _parseLanguageCodes(String? raw) {
-    _log(_LogLevel.debug, 'Parsing language codes from raw input: "$raw"');
+    _log(LogLevel.debug, 'Parsing language codes from raw input: "$raw"');
     if (raw == null || raw.trim().isEmpty) {
-      _log(
-        _LogLevel.warning,
-        'No language codes provided, defaulting to "en".',
-      );
+      _log(LogLevel.warning, 'No language codes provided, defaulting to "en".');
       return <String>['en'];
     }
     final codes = <String>{};
@@ -425,24 +380,24 @@ class LanguageHelperGenerator {
     }
     if (codes.isEmpty) {
       _log(
-        _LogLevel.warning,
+        LogLevel.warning,
         'Parsed language codes are empty, defaulting to "en".',
       );
       return <String>['en'];
     }
     final parsedCodes = codes.toList()..sort((a, b) => a.compareTo(b));
-    _log(_LogLevel.debug, 'Successfully parsed language codes: $parsedCodes');
+    _log(LogLevel.debug, 'Successfully parsed language codes: $parsedCodes');
     return parsedCodes;
   }
 
   Set<String> _parseOptionalLanguageCodes(String? raw) {
     _log(
-      _LogLevel.debug,
+      LogLevel.debug,
       'Parsing optional language codes for ignore-todo from raw input: "$raw"',
     );
     if (raw == null || raw.trim().isEmpty) {
       _log(
-        _LogLevel.debug,
+        LogLevel.debug,
         'No optional language codes provided for ignore-todo.',
       );
       return const <String>{};
@@ -454,10 +409,7 @@ class LanguageHelperGenerator {
         codes.add(code);
       }
     }
-    _log(
-      _LogLevel.debug,
-      'Successfully parsed optional language codes: $codes',
-    );
+    _log(LogLevel.debug, 'Successfully parsed optional language codes: $codes');
     return codes;
   }
 
@@ -470,36 +422,36 @@ class LanguageHelperGenerator {
     required String date,
   }) {
     _log(
-      _LogLevel.step,
+      LogLevel.step,
       'Starting creation of language boilerplate files at $path/language_helper/languages...',
     );
     if (languageCodes.isEmpty) {
       _log(
-        _LogLevel.warning,
+        LogLevel.warning,
         'No language codes provided for boilerplate file creation. Skipping.',
       );
       return;
     }
 
     final languagesDir = Directory('$path/language_helper/languages');
-    _log(_LogLevel.info, 'Ensuring directory exists: ${languagesDir.path}');
+    _log(LogLevel.info, 'Ensuring directory exists: ${languagesDir.path}');
     languagesDir.createSync(recursive: true);
-    _log(_LogLevel.info, 'Directory ensured.');
+    _log(LogLevel.info, 'Directory ensured.');
 
     for (final code in languageCodes) {
       if (code.isEmpty) {
-        _log(_LogLevel.warning, 'Skipping empty language code.');
+        _log(LogLevel.warning, 'Skipping empty language code.');
         continue;
       }
-      _log(_LogLevel.info, 'Processing language code: $code');
+      _log(LogLevel.info, 'Processing language code: $code');
       final file = File('${languagesDir.path}/$code.dart');
       _log(
-        _LogLevel.debug,
+        LogLevel.debug,
         'Reading existing language file for $code: ${file.path}',
       );
       final existing = _readExistingDartLanguageFile(file);
       _log(
-        _LogLevel.debug,
+        LogLevel.debug,
         'Finished reading existing language file for $code.',
       );
       final seenTexts = <ParsedData>{};
@@ -602,17 +554,14 @@ class LanguageHelperGenerator {
 
       buffer.writeln('};');
 
-      _log(_LogLevel.info, 'Writing content to file: ${file.path}');
+      _log(LogLevel.info, 'Writing content to file: ${file.path}');
       file.writeAsStringSync(buffer.toString());
       _log(
-        _LogLevel.success,
+        LogLevel.success,
         'Successfully created boilerplate file for language code: $code',
       );
     }
-    _log(
-      _LogLevel.success,
-      'Finished creating all language boilerplate files.',
-    );
+    _log(LogLevel.success, 'Finished creating all language boilerplate files.');
   }
 
   List<ParsedData> _parseFile(
@@ -630,12 +579,12 @@ class LanguageHelperGenerator {
         }
       } catch (error) {
         _log(
-          _LogLevel.warning,
+          LogLevel.warning,
           'Warning: Analyzer failed for $filePath. Falling back to raw parsing. Error: $error',
         );
       }
     }
-    _log(_LogLevel.debug, 'Attempting raw parsing for $filePath.');
+    _log(LogLevel.debug, 'Attempting raw parsing for $filePath.');
 
     if (parsed != null) {
       return parsed;
@@ -643,45 +592,45 @@ class LanguageHelperGenerator {
 
     final file = File(filePath);
     if (!file.existsSync()) {
-      _log(_LogLevel.error, 'Error: File $filePath not found for parsing.');
+      _log(LogLevel.error, 'Error: File $filePath not found for parsing.');
       return const [];
     }
     final data = file.readAsBytesSync();
-    _log(_LogLevel.debug, 'Successfully read bytes from $filePath.');
+    _log(LogLevel.debug, 'Successfully read bytes from $filePath.');
     final text = const Utf8Codec().decode(data);
     return parse(text);
   }
 
   _ExistingLanguageFile _readExistingDartLanguageFile(File file) {
     _log(
-      _LogLevel.debug,
+      LogLevel.debug,
       'Attempting to read existing Dart language file: ${file.path}',
     );
     if (!file.existsSync()) {
       _log(
-        _LogLevel.info,
+        LogLevel.info,
         'File does not exist: ${file.path}. Returning empty _ExistingLanguageFile.',
       );
       return _ExistingLanguageFile();
     }
 
     final content = file.readAsStringSync();
-    _log(_LogLevel.debug, 'File content read for: ${file.path}.');
+    _log(LogLevel.debug, 'File content read for: ${file.path}.');
     final parseResult = parseString(content: content);
     final unit = parseResult.unit;
-    _log(_LogLevel.debug, 'File parsed into AST unit.');
+    _log(LogLevel.debug, 'File parsed into AST unit.');
 
     final imports =
         unit.directives
             .whereType<ImportDirective>()
             .map((directive) => directive.toSource())
             .toList();
-    _log(_LogLevel.debug, 'Extracted ${imports.length} imports.');
+    _log(LogLevel.debug, 'Extracted ${imports.length} imports.');
 
     final entries = <String, _ExistingEntry>{};
     String declarationKeyword = 'const';
     _log(
-      _LogLevel.debug,
+      LogLevel.debug,
       'Starting to extract existing entries and declaration keyword.',
     );
 
@@ -729,7 +678,7 @@ class LanguageHelperGenerator {
     }
 
     _log(
-      _LogLevel.debug,
+      LogLevel.debug,
       'Finished extracting existing entries. Declaration keyword: $declarationKeyword.',
     );
 
@@ -737,7 +686,7 @@ class LanguageHelperGenerator {
     final keyRegex = RegExp(r'"((?:[^"\\]|\\.)*)"\s*:');
     bool pendingTodoComment = false;
     _log(
-      _LogLevel.debug,
+      LogLevel.debug,
       'Starting to identify TODO comments and associated keys.',
     );
 
@@ -771,7 +720,7 @@ class LanguageHelperGenerator {
     }
 
     _log(
-      _LogLevel.debug,
+      LogLevel.debug,
       'Finished identifying TODO comments. Found ${todoKeys.length} TODO keys.',
     );
 
