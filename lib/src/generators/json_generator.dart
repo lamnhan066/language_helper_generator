@@ -12,7 +12,7 @@ void exportJson(
   List<String> languageCodes = const [],
   SimpleLogger? logger,
 }) {
-  logger ??= SimpleLogger(verbose: true);
+  logger ??= SimpleLogger(minLevel: LogLevel.debug);
   logger.log('Exporting Json...', LogLevel.step);
   _exportJsonCodes(path, languageCodes, logger);
   _exportJsonLanguageFiles(data, path, languageCodes, logger);
