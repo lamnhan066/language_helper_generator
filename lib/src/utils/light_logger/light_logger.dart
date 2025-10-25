@@ -27,13 +27,7 @@ enum LogLevel {
   step,
 
   /// Detailed diagnostic output, usually enabled only during development.
-  debug;
-
-  /// Determines whether this log level should be output when compared against [minLevel].
-  ///
-  /// Returns `true` when this level's priority is **greater than or equal to**
-  /// the provided [minLevel].
-  bool shouldLog(LogLevel minLevel) => index <= minLevel.index;
+  debug,
 }
 
 /// Defines terminal colors using ANSI escape codes for styling log output.
@@ -117,7 +111,9 @@ const _defaultLevelTexts = {
 ///
 /// Produces time in `[HH:MM:SS]` format using 24-hour clock.
 String _defaultTimestamp(DateTime date) {
-  return '[${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}:${date.second.toString().padLeft(2, '0')}]';
+  return '[${date.hour.toString().padLeft(2, '0')}:'
+      '${date.minute.toString().padLeft(2, '0')}:'
+      '${date.second.toString().padLeft(2, '0')}]';
 }
 
 /// A lightweight, flexible logger designed for developers.
@@ -210,7 +206,7 @@ class LightLogger {
   /// ```
   void log(dynamic message, [LogLevel level = LogLevel.info]) {
     if (!_enabled) return;
-    if (!level.shouldLog(_minLevel)) return;
+    if (!_shouldLog(_minLevel)) return;
 
     final timestamp = _timestamp(DateTime.now());
     final color = _colors[level]?.color ?? _defaultColors[level]!.color;
@@ -238,4 +234,10 @@ class LightLogger {
       print(colored);
     }
   }
+
+  /// Determines whether this log level should be output when compared against `minLevel`.
+  ///
+  /// Returns `true` when this level's priority is **greater than or equal to**
+  /// the provided `minLevel`.
+  bool _shouldLog(LogLevel level) => level.index <= _minLevel.index;
 }
