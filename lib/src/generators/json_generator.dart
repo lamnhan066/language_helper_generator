@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:language_helper_generator/src/models/data_type.dart';
 import 'package:language_helper_generator/src/models/parsed_data.dart';
-import 'package:language_helper_generator/src/utils/simple_logger.dart';
+import 'package:language_helper_generator/src/utils/light_logger/light_logger.dart';
 import 'package:path/path.dart' as p;
 
 void exportJson(

@@ -11,8 +11,8 @@ import 'package:language_helper_generator/src/generators/json_generator.dart'
 import 'package:language_helper_generator/src/models/data_type.dart';
 import 'package:language_helper_generator/src/models/parsed_data.dart';
 import 'package:language_helper_generator/src/parser/parser.dart';
+import 'package:language_helper_generator/src/utils/light_logger/light_logger.dart';
 import 'package:language_helper_generator/src/utils/list_all_files.dart';
-import 'package:language_helper_generator/src/utils/simple_logger.dart';
 import 'package:language_helper_generator/src/utils/todo_comment.dart';
 import 'package:path/path.dart' as p;
 
