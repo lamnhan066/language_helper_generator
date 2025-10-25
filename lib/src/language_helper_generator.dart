@@ -48,9 +48,10 @@ class LanguageHelperGenerator {
             valueHelp: 'en,vi',
           )
           ..addFlag(
-            'ignore-invalid',
+            'include-invalid',
+            negatable: false,
             help:
-                'Ignore commented-out duplicated or invalid entries in outputs.',
+                'Include commented-out duplicated or invalid entries in outputs.',
             defaultsTo: false,
           )
           ..addFlag(
@@ -86,7 +87,7 @@ class LanguageHelperGenerator {
     final ignoreTodoCodes = _parseOptionalLanguageCodes(
       argResult['ignore-todo'] as String?,
     );
-    final ignoreCommented = argResult['ignore-invalid'] as bool;
+    final includeInvalid = argResult['include-invalid'] as bool;
     final dartFormat = argResult['dart-format'] as bool;
     final dartFix = argResult['dart-fix'] as bool;
     final fvm = argResult['fvm'] as bool;
@@ -102,7 +103,7 @@ class LanguageHelperGenerator {
         result,
         languageCodes,
         path: outputPath,
-        ignoreCommented: ignoreCommented,
+        includeInvalid: includeInvalid,
         ignoreTodoCodes: ignoreTodoCodes,
         date: date,
       );
@@ -305,7 +306,7 @@ class LanguageHelperGenerator {
     Map<String, List<ParsedData>> data,
     List<String> languageCodes, {
     required String path,
-    bool ignoreCommented = false,
+    bool includeInvalid = true,
     Set<String> ignoreTodoCodes = const <String>{},
     required String date,
   }) {
@@ -392,12 +393,11 @@ class LanguageHelperGenerator {
           }
 
           if (commentOut) {
-            if (ignoreCommented) {
-              continue;
+            if (includeInvalid) {
+              buffer.writeln(
+                '  $commentPrefix$keyLiteral: $valueExpression,$commentSuffix',
+              );
             }
-            buffer.writeln(
-              '  $commentPrefix$keyLiteral: $valueExpression,$commentSuffix',
-            );
             continue;
           }
 

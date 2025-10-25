@@ -412,7 +412,7 @@ void main() {
     }
   });
 
-  test('Language boilerplate hides commented entries when ignore flag set', () {
+  test('Language boilerplate hides invalid entries by default', () {
     final tempDir = Directory.systemTemp.createTempSync('lang_helper_ignore_');
     try {
       final generator = LanguageHelperGenerator();
@@ -431,7 +431,6 @@ void main() {
         '--path=${tempDir.path}',
         '--output=${tempDir.path}/resources',
         '--languages=en',
-        '--ignore-invalid',
       ]);
 
       final enFile = File(
@@ -444,6 +443,47 @@ void main() {
       tempDir.deleteSync(recursive: true);
     }
   });
+
+  test(
+    'Language boilerplate includes invalid entries when --include-invalid is set',
+    () {
+      final tempDir = Directory.systemTemp.createTempSync(
+        'lang_helper_include_',
+      );
+      try {
+        final generator = LanguageHelperGenerator();
+        final sourceFile = File('${tempDir.path}/page.dart');
+        sourceFile.writeAsStringSync('''
+import 'package:language_helper/language_helper.dart';
+
+void main() {
+  'Hello'.tr;
+  'Hello'.tr;
+  'World'.tr;
+}
+''');
+
+        generator.generate([
+          '--path=${tempDir.path}',
+          '--output=${tempDir.path}/resources',
+          '--languages=en',
+          '--include-invalid',
+        ]);
+
+        final enFile = File(
+          '${tempDir.path}/resources/language_helper/languages/en.dart',
+        );
+        final content = enFile.readAsStringSync();
+        expect(content.contains('// Duplicated'), isTrue);
+        expect(
+          content.split(' ').where((e) => e.trim().contains('Hello')).length,
+          equals(4),
+        );
+      } finally {
+        tempDir.deleteSync(recursive: true);
+      }
+    },
+  );
 
   test('Language constant name is sanitized for boilerplate output', () {
     final tempDir = Directory.systemTemp.createTempSync('lang_helper_const_');
