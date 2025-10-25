@@ -17,7 +17,7 @@ import 'package:language_helper_generator/src/utils/todo_comment.dart';
 import 'package:path/path.dart' as p;
 
 class LanguageHelperGenerator {
-  late final SimpleLogger logger;
+  late final LightLogger logger;
 
   void _log(LogLevel level, String message) => logger.log(message, level);
 
@@ -97,9 +97,9 @@ class LanguageHelperGenerator {
     final argResult = parser.parse(args);
 
     if (argResult.flag('verbose')) {
-      logger = SimpleLogger(minLevel: LogLevel.debug);
+      logger = LightLogger(minLevel: LogLevel.debug);
     } else {
-      logger = SimpleLogger();
+      logger = LightLogger();
     }
 
     _log(LogLevel.info, 'Starting language helper code generation...');

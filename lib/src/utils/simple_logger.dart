@@ -1,58 +1,64 @@
-/// Represents the severity or type of a log message.
+/// Represents the severity or importance of a log message.
 ///
 /// The enum index determines priority for filtering:
-/// lower index = higher priority.
+///
+/// - Lower index = higher priority.
+/// - Messages are only logged if their level is **greater than or equal** to the configured minimum level.
+///
+/// For example:
+/// ```dart
+/// LogLevel.error.shouldLog(LogLevel.warning); // true (error is higher priority)
+/// LogLevel.debug.shouldLog(LogLevel.info);   // false (debug is lower priority)
+/// ```
 enum LogLevel {
-  /// Critical failures that should stop execution or require immediate attention.
+  /// Critical failures that require immediate attention and typically stop the process.
   error,
 
-  /// Issues that may lead to errors or unexpected behavior.
+  /// Recoverable issues that may degrade the application or indicate potential problems.
   warning,
 
-  /// Indicates successful operations or positive outcomes.
+  /// Successful operations indicating that a task completed as expected.
   success,
 
-  /// General runtime information useful for users or developers.
+  /// General informational messages about routine operations.
   info,
 
-  /// Represents a transitional or progress step in a sequence of operations.
+  /// Operational progress updates, often used in multi-step processes.
   step,
 
-  /// Detailed diagnostic output intended for debugging.
+  /// Detailed diagnostic output, usually enabled only during development.
   debug;
 
-  /// Returns `true` if this level should be logged when compared
-  /// to a specified [minLevel].
+  /// Determines whether this log level should be output when compared against [minLevel].
   ///
-  /// Example:
-  /// ```dart
-  /// LogLevel.debug.shouldLog(LogLevel.info); // false
-  /// LogLevel.error.shouldLog(LogLevel.info); // true
-  /// ```
+  /// Returns `true` when this level's priority is **greater than or equal to**
+  /// the provided [minLevel].
   bool shouldLog(LogLevel minLevel) => index <= minLevel.index;
 }
 
-/// Defines ANSI terminal colors for formatting log output.
+/// Defines terminal colors using ANSI escape codes for styling log output.
+///
+/// Colors are typically used to visually distinguish log levels.
 enum LogColor {
-  /// Blue text (typically used for info).
+  /// Blue text — commonly used for informational messages.
   blue,
 
-  /// Yellow text (typically used for warnings).
+  /// Yellow text — commonly used for warnings.
   yellow,
 
-  /// Red text (typically used for errors).
+  /// Red text — commonly used for errors.
   red,
 
-  /// Gray text (typically used for debug messages).
+  /// Gray text — commonly used for debug-level output.
   gray,
 
-  /// Green text (typically used for success messages).
+  /// Green text — commonly used for success messages.
   green,
 
-  /// Cyan text (typically used for steps or progress).
+  /// Cyan text — commonly used for progress or step messages.
   cyan;
 
-  /// Returns the corresponding ANSI escape color code.
+  /// ANSI escape code representing the terminal color for this value.
   String get color => switch (this) {
     blue => '\x1B[34m',
     yellow => '\x1B[33m',
@@ -63,14 +69,17 @@ enum LogColor {
   };
 }
 
-/// Callback signature for custom log handling.
+/// A function type used to intercept formatted and raw log messages.
 ///
-/// - [raw] is the plain log message without formatting.
-/// - [colored] is the formatted message with ANSI colors applied.
-/// - [level] indicates the log severity.
+/// Useful for writing logs to a file, sending to external systems,
+/// or integrating with custom log handlers.
+///
+/// - [raw]     Unformatted, plain message string.
+/// - [colored] The final formatted output including ANSI color codes.
+/// - [level]   The log level that was emitted.
 typedef LogCallback = void Function(String raw, String colored, LogLevel level);
 
-/// Default mapping of log levels to colors.
+/// Default color mapping for each log level when none is provided.
 const _defaultColors = {
   LogLevel.info: LogColor.blue,
   LogLevel.warning: LogColor.yellow,
@@ -80,7 +89,9 @@ const _defaultColors = {
   LogLevel.step: LogColor.cyan,
 };
 
-/// Default mapping of log levels to emojis/icons.
+/// Default emoji/icon mapping for each log level.
+///
+/// Icons enhance readability and quickly convey log intent.
 const _defaultEmojis = {
   LogLevel.info: '💡',
   LogLevel.warning: '⚠️',
@@ -90,7 +101,9 @@ const _defaultEmojis = {
   LogLevel.step: '🔄',
 };
 
-/// Default mapping of log levels to 4-character text labels.
+/// Default label text (fixed-width) for each log level.
+///
+/// Ensures consistent alignment in formatted output.
 const _defaultLevelTexts = {
   LogLevel.error: 'ERRR',
   LogLevel.warning: 'WARN',
@@ -100,31 +113,45 @@ const _defaultLevelTexts = {
   LogLevel.debug: 'DBUG',
 };
 
-/// Default timestamp formatter.
+/// Default timestamp formatter for log output.
 ///
-/// Produces output in the format `[HH:MM:SS]`.
+/// Produces time in `[HH:MM:SS]` format using 24-hour clock.
 String _defaultTimestamp(DateTime date) {
   return '[${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}:${date.second.toString().padLeft(2, '0')}]';
 }
 
-/// A lightweight, customizable logger with coloring, icons,
-/// and flexible formatting.
-class SimpleLogger {
-  /// Creates an instance of [SimpleLogger].
+/// A lightweight, flexible logger designed for developers.
+///
+/// Supports:
+/// - Customizable colors, icons, timestamps, and formatting tokens.
+/// - Lazy evaluation for log messages (functions are only executed if the log is emitted).
+/// - Optional callback for custom integration such as writing to file or remote service.
+///
+/// ### Format Placeholders
+/// The `format` string supports these dynamic tokens:
+/// - `@{color}`   → ANSI color code
+/// - `@{timestamp}` → Formatted timestamp
+/// - `@{icon}`    → Emoji or icon for the level
+/// - `@{level}`   → Short text label
+/// - `@{message}` → The actual log message
+///
+/// ### Example
+/// ```dart
+/// final logger = SimpleLogger(minLevel: LogLevel.warning);
+/// logger.log('This is visible', LogLevel.error); // Logged
+/// logger.log('This is hidden', LogLevel.info);  // Not logged
+/// ```
+class LightLogger {
+  /// Creates an instance of [LightLogger].
   ///
-  /// - [minLevel] sets the minimum severity that will be output.
-  /// - [callback] allows capturing logs instead of printing.
-  /// - [colors], [emojis], and [levelText] customize appearance.
-  /// - [timestamp] customizes timestamp formatting.
-  /// - [format] defines how a log line is constructed.
-  ///
-  /// Available placeholders in [format]:
-  /// - `@{color}`: ANSI color code
-  /// - `@{timestamp}`: formatted timestamp
-  /// - `@{icon}`: emoji or symbol
-  /// - `@{level}`: level text
-  /// - `@{message}`: the log message
-  const SimpleLogger({
+  /// - [enabled]: Globally enables or disables logging without removing code.
+  /// - [minLevel]: Minimum severity required to output a log.
+  /// - [callback]: Optional custom handler instead of default print.
+  /// - [colors], [emojis], [levelText]: Customize visual style.
+  /// - [timestamp]: Function supplying a formatted timestamp string.
+  /// - [format]: Template for building each formatted log line.
+  const LightLogger({
+    bool enabled = true,
     LogLevel minLevel = LogLevel.info,
     LogCallback? callback,
     Map<LogLevel, LogColor> colors = _defaultColors,
@@ -132,7 +159,8 @@ class SimpleLogger {
     Map<LogLevel, String> levelText = _defaultLevelTexts,
     String Function(DateTime) timestamp = _defaultTimestamp,
     String format = '@{color}@{timestamp} @{icon} [@{level}] @{message}',
-  }) : _callback = callback,
+  }) : _enabled = enabled,
+       _callback = callback,
        _minLevel = minLevel,
        _colors = colors,
        _emojis = emojis,
@@ -140,46 +168,61 @@ class SimpleLogger {
        _timestamp = timestamp,
        _format = format;
 
-  /// Minimum log level required for output.
+  /// Whether logging is globally enabled.
+  ///
+  /// When `false`, all calls to [log] are ignored.
+  final bool _enabled;
+
+  /// Minimum log level that will be output.
+  ///
+  /// Messages with lower priority are not logged.
   final LogLevel _minLevel;
 
-  /// Optional user-defined callback for handling logs.
+  /// Optional user-defined handler for processed log output.
   final LogCallback? _callback;
 
-  /// Mapping between levels and colors.
+  /// Mapping between log levels and terminal colors.
   final Map<LogLevel, LogColor> _colors;
 
-  /// Mapping between levels and icons.
+  /// Mapping between log levels and icon characters.
   final Map<LogLevel, String> _emojis;
 
-  /// Mapping between levels and display text.
+  /// Mapping between log levels and fixed-width label text.
   final Map<LogLevel, String> _levelText;
 
-  /// Function that generates timestamps.
+  /// A function that generates timestamp strings.
   final String Function(DateTime) _timestamp;
 
-  /// Log line format template.
+  /// The format template for composing each log entry.
+  ///
+  /// See the class documentation above for available placeholders.
   final String _format;
 
-  /// Logs a message if the level is permitted by [_minLevel].
+  /// Logs a message if logging is enabled and the severity meets the threshold.
   ///
-  /// The [message] can be a `String` or a function returning `String`
-  /// (useful for lazy evaluation).
+  /// The [message] parameter may be:
+  /// - A `String`, or
+  /// - A function returning `String` (lazy evaluation to save computation).
+  ///
+  /// This allows:
+  /// ```dart
+  /// logger.log(() => expensiveComputation(), LogLevel.debug);
+  /// ```
   void log(dynamic message, [LogLevel level = LogLevel.info]) {
+    if (!_enabled) return;
+    if (!level.shouldLog(_minLevel)) return;
+
     final timestamp = _timestamp(DateTime.now());
     final color = _colors[level]?.color ?? _defaultColors[level]!.color;
     final reset = '\x1B[0m';
     final icon = _emojis[level] ?? _defaultEmojis[level];
     final levelText = _levelText[level] ?? _defaultLevelTexts[level];
 
-    // Respect minimum log level
-    if (!level.shouldLog(_minLevel)) return;
-
-    // Evaluate lazy message if it's a function
+    // Evaluate lazy message only when needed
     final textMessage = message is Function ? message() : '$message';
 
-    // Apply formatting
-    var colored =
+    // Build formatted output
+    final colored =
         _format
             .replaceAll('@{color}', color)
             .replaceAll('@{timestamp}', timestamp)

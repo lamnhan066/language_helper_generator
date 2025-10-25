@@ -10,9 +10,9 @@ void exportJson(
   Map<String, List<ParsedData>> data,
   String path, {
   List<String> languageCodes = const [],
-  SimpleLogger? logger,
+  LightLogger? logger,
 }) {
-  logger ??= SimpleLogger(minLevel: LogLevel.debug);
+  logger ??= LightLogger(minLevel: LogLevel.debug);
   logger.log('Exporting Json...', LogLevel.step);
   _exportJsonCodes(path, languageCodes, logger);
   _exportJsonLanguageFiles(data, path, languageCodes, logger);
@@ -22,7 +22,7 @@ void exportJson(
 void _exportJsonCodes(
   String path,
   List<String> languageCodes,
-  SimpleLogger logger,
+  LightLogger logger,
 ) {
   logger.log('Creating codes.json...', LogLevel.step);
 
@@ -73,7 +73,7 @@ void _exportJsonLanguageFiles(
   Map<String, List<ParsedData>> data,
   String path,
   List<String> languageCodes,
-  SimpleLogger logger,
+  LightLogger logger,
 ) {
   if (languageCodes.isEmpty) return;
 
