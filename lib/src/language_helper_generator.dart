@@ -145,7 +145,7 @@ class LanguageHelperGenerator {
     if (argResult['json']) {
       _log(LogLevel.step, 'Exporting to JSON files...');
       _exportJson(result, output ?? '$path/../assets/resources', languageCodes);
-      _log(LogLevel.success, 'JSON export complete.');
+      _log(LogLevel.success, 'JSON export completed.');
     } else {
       _log(LogLevel.step, 'Generating Dart language files...');
       final date = DateTime.now().toIso8601String();
@@ -368,8 +368,7 @@ class LanguageHelperGenerator {
       LogLevel.debug,
       'Exporting JSON with path: $path, language codes: $languageCodes',
     );
-    j.exportJson(data, path, languageCodes: languageCodes);
-    _log(LogLevel.success, 'JSON export completed.');
+    j.exportJson(data, path, languageCodes: languageCodes, logger: logger);
   }
 
   List<String> _parseLanguageCodes(String? raw) {

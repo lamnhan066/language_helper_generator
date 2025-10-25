@@ -3,23 +3,28 @@ import 'dart:io';
 
 import 'package:language_helper_generator/src/models/data_type.dart';
 import 'package:language_helper_generator/src/models/parsed_data.dart';
+import 'package:language_helper_generator/src/utils/simple_logger.dart';
 import 'package:path/path.dart' as p;
 
 void exportJson(
   Map<String, List<ParsedData>> data,
   String path, {
   List<String> languageCodes = const [],
+  SimpleLogger? logger,
 }) {
-  print('===========================================================');
-  print('Exporting Json...');
-  _exportJsonCodes(path, languageCodes);
-  _exportJsonLanguageFiles(data, path, languageCodes);
-  print('Exported Json');
-  print('===========================================================');
+  logger ??= SimpleLogger(verbose: true);
+  logger.log('Exporting Json...', LogLevel.step);
+  _exportJsonCodes(path, languageCodes, logger);
+  _exportJsonLanguageFiles(data, path, languageCodes, logger);
+  logger.log('Exported Json', LogLevel.success);
 }
 
-void _exportJsonCodes(String path, List<String> languageCodes) {
-  print('Creating codes.json...');
+void _exportJsonCodes(
+  String path,
+  List<String> languageCodes,
+  SimpleLogger logger,
+) {
+  logger.log('Creating codes.json...', LogLevel.step);
 
   final desFile = File('$path/language_helper/codes.json');
 
@@ -61,13 +66,14 @@ void _exportJsonCodes(String path, List<String> languageCodes) {
   JsonEncoder encoder = JsonEncoder.withIndent('  ');
   desFile.writeAsStringSync(encoder.convert(orderedCodes));
 
-  print(existed ? 'Updated codes.json' : 'Created codes.json');
+  logger.log(existed ? 'Updated codes.json' : 'Created codes.json');
 }
 
 void _exportJsonLanguageFiles(
   Map<String, List<ParsedData>> data,
   String path,
   List<String> languageCodes,
+  SimpleLogger logger,
 ) {
   if (languageCodes.isEmpty) return;
 
@@ -114,6 +120,10 @@ void _exportJsonLanguageFiles(
 
     JsonEncoder encoder = const JsonEncoder.withIndent('  ');
     file.writeAsStringSync(encoder.convert(merged));
-    print('${existed ? 'Updated' : 'Created'} language file: ${file.path}');
+    logger.log(
+      '${existed ? 'Updated' : 'Created'} language file: ${file.path}',
+      LogLevel.debug,
+    );
   }
+  logger.log('Created language files');
 }
