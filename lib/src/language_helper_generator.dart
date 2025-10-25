@@ -56,12 +56,12 @@ class LanguageHelperGenerator {
           )
           ..addFlag(
             'dart-format',
-            help: 'Running `dart format` for the generated files',
+            help: 'Running `dart format` for the generated files.',
             defaultsTo: true,
           )
           ..addFlag(
             'dart-fix',
-            help: 'Running `dart fix --apply` for the generated files',
+            help: 'Running `dart fix --apply` for the generated files.',
             defaultsTo: true,
           )
           ..addFlag(
@@ -69,7 +69,11 @@ class LanguageHelperGenerator {
             help: 'Should use `fvm` prefix when running the `dart` commands',
             defaultsTo: false,
           )
-          ..addFlag('json', abbr: 'j', help: 'Export to json format')
+          ..addFlag(
+            'json',
+            defaultsTo: false,
+            help: 'Export translations to JSON files instead of Dart files.',
+          )
           ..addFlag('help', abbr: 'h', help: 'Show help', negatable: false);
     final argResult = parser.parse(args);
 
