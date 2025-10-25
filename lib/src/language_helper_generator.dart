@@ -41,6 +41,7 @@ class LanguageHelperGenerator {
           )
           ..addOption(
             'languages',
+            abbr: 'l',
             help:
                 'Generate boilerplate translation files for the provided comma separated language codes.',
             defaultsTo: 'en',
@@ -48,12 +49,14 @@ class LanguageHelperGenerator {
           )
           ..addOption(
             'ignore-todo',
+            aliases: ['todo'],
             help:
                 'Comma separated language codes that should not receive TODO comments when generating boilerplate.',
             valueHelp: 'en,vi',
           )
           ..addFlag(
             'include-invalid',
+            aliases: ['invalid'],
             negatable: false,
             help:
                 'Include commented-out duplicated or invalid entries in outputs.',
@@ -61,11 +64,15 @@ class LanguageHelperGenerator {
           )
           ..addFlag(
             'dart-format',
+            aliases: ['format'],
             help: 'Running `dart format` for the generated files.',
+            negatable: false,
             defaultsTo: true,
           )
           ..addFlag(
             'dart-fix',
+            aliases: ['fix'],
+            negatable: false,
             help: 'Running `dart fix --apply` for the generated files.',
             defaultsTo: true,
           )
