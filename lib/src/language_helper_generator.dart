@@ -11,13 +11,13 @@ import 'package:language_helper_generator/src/generators/json_generator.dart'
 import 'package:language_helper_generator/src/models/data_type.dart';
 import 'package:language_helper_generator/src/models/parsed_data.dart';
 import 'package:language_helper_generator/src/parser/parser.dart';
-import 'package:language_helper_generator/src/utils/light_logger/light_logger.dart';
 import 'package:language_helper_generator/src/utils/list_all_files.dart';
 import 'package:language_helper_generator/src/utils/todo_comment.dart';
+import 'package:lite_logger/lite_logger.dart';
 import 'package:path/path.dart' as p;
 
 class LanguageHelperGenerator {
-  late final LightLogger logger;
+  late LiteLogger logger;
 
   void _log(LogLevel level, String message) => logger.log(message, level);
 
@@ -97,9 +97,9 @@ class LanguageHelperGenerator {
     final argResult = parser.parse(args);
 
     if (argResult.flag('verbose')) {
-      logger = LightLogger(minLevel: LogLevel.debug);
+      logger = LiteLogger(minLevel: LogLevel.debug);
     } else {
-      logger = LightLogger();
+      logger = LiteLogger();
     }
 
     _log(LogLevel.info, 'Starting language helper code generation...');

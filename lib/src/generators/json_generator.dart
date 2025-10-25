@@ -3,16 +3,16 @@ import 'dart:io';
 
 import 'package:language_helper_generator/src/models/data_type.dart';
 import 'package:language_helper_generator/src/models/parsed_data.dart';
-import 'package:language_helper_generator/src/utils/light_logger/light_logger.dart';
+import 'package:lite_logger/lite_logger.dart';
 import 'package:path/path.dart' as p;
 
 void exportJson(
   Map<String, List<ParsedData>> data,
   String path, {
   List<String> languageCodes = const [],
-  LightLogger? logger,
+  LiteLogger? logger,
 }) {
-  logger ??= LightLogger(minLevel: LogLevel.debug);
+  logger ??= LiteLogger(minLevel: LogLevel.debug);
   logger.log('Exporting Json...', LogLevel.step);
   _exportJsonCodes(path, languageCodes, logger);
   _exportJsonLanguageFiles(data, path, languageCodes, logger);
@@ -22,7 +22,7 @@ void exportJson(
 void _exportJsonCodes(
   String path,
   List<String> languageCodes,
-  LightLogger logger,
+  LiteLogger logger,
 ) {
   logger.log('Creating codes.json...', LogLevel.step);
 
@@ -73,7 +73,7 @@ void _exportJsonLanguageFiles(
   Map<String, List<ParsedData>> data,
   String path,
   List<String> languageCodes,
-  LightLogger logger,
+  LiteLogger logger,
 ) {
   if (languageCodes.isEmpty) return;
 

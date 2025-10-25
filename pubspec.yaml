@@ -1,6 +1,6 @@
 name: language_helper_generator
 description: A generator for language_helper helps you create a base structure for language_helper.
-version: 0.6.0
+version: 0.7.0
 homepage: https://github.com/lamnhan066/language_helper_generator
 
 environment:
@@ -9,8 +9,9 @@ environment:
 dependencies:
   analyzer: ^8.1.1
   args: ^2.4.2
-  dart_style: ^3.1.2
   path: ^1.9.1
+  language_helper: ^0.12.3
+  lite_logger: ^0.0.1
 
 dev_dependencies:
   test: ^1.25.5
