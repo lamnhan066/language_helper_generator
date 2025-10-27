@@ -1,10 +1,33 @@
-## 0.6.1
+## 0.7.0
 
-* Add a `--lang` flag to scaffold and merge language boilerplate files for both Dart maps and JSON exports, preserving existing translations and marking new keys with TODO comments.
-* Use the analyzer context to parse source files for more reliable extraction.
-* Dart language boilerplate now mirrors `_generated.dart` structure, including per-file path markers.
-* Extend automated tests to cover language boilerplate generation and TODO handling.
-* Update the JSON generator to refresh `codes.json` when re-running.
+* Updated the structure of generated paths and files:
+
+  **Dart output** (default: `./lib/languages/`):
+
+  ```txt
+  $output/
+  ├── codes.dart         # Language codes mapping
+  └── data/
+      ├── en.dart        # English translations
+      └── vi.dart        # Vietnamese translations
+  ```
+
+  **JSON output** (default: `./assets/languages/`):
+
+  ```txt
+  $output/
+  ├── codes.json         # Language codes mapping
+  └── data/
+      ├── en.json        # English translations
+      └── vi.json        # Vietnamese translations
+  ```
+
+* Added `--languages` flag to generate and update language files, preserving existing translations. New entries will include a `TODO` comment (when generating Dart files). Unused translations are automatically removed when regenerating.
+* Introduced `--ignore-todo` option to omit TODO markers for specific language codes.
+* Added `--include-invalid` (Dart only): includes commented-out duplicated or invalid entries in the output.
+* Switched to using `LazyLanguageData` for generation, allowing for lazy loading of translation data.
+* Removed auto-generated aggregate files (`_generated.dart` and `_generated.json`); each language file is now standalone with only necessary keys and imports.
+* Improved documentation in the README.
 
 ## 0.6.0
 
