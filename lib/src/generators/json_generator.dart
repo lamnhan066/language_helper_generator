@@ -8,25 +8,25 @@ import 'package:path/path.dart' as p;
 
 void exportJson(
   Map<String, List<ParsedData>> data,
-  String path, {
+  String output, {
   List<String> languageCodes = const [],
   LiteLogger? logger,
 }) {
   logger ??= LiteLogger(minLevel: LogLevel.debug);
   logger.log('Exporting Json...', LogLevel.step);
-  _exportJsonCodes(path, languageCodes, logger);
-  _exportJsonLanguageFiles(data, path, languageCodes, logger);
+  _exportJsonCodes(output, languageCodes, logger);
+  _exportJsonLanguageFiles(data, output, languageCodes, logger);
   logger.log('Exported Json', LogLevel.success);
 }
 
 void _exportJsonCodes(
-  String path,
+  String output,
   List<String> languageCodes,
   LiteLogger logger,
 ) {
   logger.log('Creating codes.json...', LogLevel.step);
 
-  final desFile = File('$path/language_helper/codes.json');
+  final desFile = File(p.join(output, 'codes.json'));
 
   desFile.parent.createSync(recursive: true);
 
@@ -71,18 +71,20 @@ void _exportJsonCodes(
 
 void _exportJsonLanguageFiles(
   Map<String, List<ParsedData>> data,
-  String path,
+  String output,
   List<String> languageCodes,
   LiteLogger logger,
 ) {
   if (languageCodes.isEmpty) return;
 
-  final languagesDir = Directory('$path/language_helper/languages');
+  final languagesDir = Directory(p.join(output, 'data'));
+  logger.log('Ensuring directory exists: ${languagesDir.path}', LogLevel.debug);
   languagesDir.createSync(recursive: true);
+  logger.log('Directory ensured.', LogLevel.debug);
 
   for (final code in languageCodes) {
     if (code.isEmpty) continue;
-    final file = File('${languagesDir.path}/$code.json');
+    final file = File(p.join(languagesDir.path, '$code.json'));
     final existed = file.existsSync();
     final existing = <String, String>{};
     if (existed) {

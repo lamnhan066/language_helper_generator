@@ -280,9 +280,8 @@ void main() {
 }
 ''');
 
-        final languagesDir = Directory(
-          '${tempDir.path}/resources/language_helper/languages',
-        )..createSync(recursive: true);
+        final languagesDir = Directory('${tempDir.path}/languages/data')
+          ..createSync(recursive: true);
         final enFile = File('${languagesDir.path}/en.dart');
         enFile.writeAsStringSync('''
 import 'package:language_helper/language_helper.dart';
@@ -297,7 +296,7 @@ const enLanguageData = <String, dynamic>{
 
         generator.generate([
           '--path=${tempDir.path}',
-          '--output=${tempDir.path}/resources',
+          '--output=${tempDir.path}/languages',
           '--languages=en',
         ]);
 
@@ -330,7 +329,7 @@ void main() {
 
         generator.generate([
           '--path=${tempDir.path}',
-          '--output=${tempDir.path}/resources',
+          '--output=${tempDir.path}/languages',
           '--languages=en',
         ]);
 
@@ -371,21 +370,21 @@ void main() {
 }
 ''');
 
-      final languagesDir = Directory(
-        '${tempDir.path}/assets/resources/language_helper/languages',
-      )..createSync(recursive: true);
-      final codesFile = File(
-        '${tempDir.path}/assets/resources/language_helper/codes.json',
-      )..createSync(recursive: true);
+      final languagesDir = Directory('${tempDir.path}/assets/languages')
+        ..createSync(recursive: true);
+      final codesFile = File('${tempDir.path}/assets/languages/codes.json')
+        ..createSync(recursive: true);
       codesFile.writeAsStringSync(jsonEncode(['en']));
 
-      final enJson = File('${languagesDir.path}/en.json')
+      final dataDir = Directory('${languagesDir.path}/data')
+        ..createSync(recursive: true);
+      final enJson = File('${dataDir.path}/en.json')
         ..writeAsStringSync(jsonEncode(<String, String>{'Hello': 'Bonjour'}));
 
       generator.generate([
         '--path=${libDir.path}',
         '--json',
-        '--output=${tempDir.path}/assets/resources',
+        '--output=${tempDir.path}/assets/languages',
         '--languages=en,vi,en',
       ]);
 
@@ -400,7 +399,7 @@ void main() {
       expect(enTranslations['Hello'], equals('Bonjour'));
       expect(enTranslations['World'], equals(''));
 
-      final viJson = File('${languagesDir.path}/vi.json');
+      final viJson = File('${dataDir.path}/vi.json');
       expect(viJson.existsSync(), isTrue);
       final viTranslations =
           (jsonDecode(viJson.readAsStringSync()) as Map).cast<String, String>();
@@ -429,13 +428,11 @@ void main() {
 
       generator.generate([
         '--path=${tempDir.path}',
-        '--output=${tempDir.path}/resources',
+        '--output=${tempDir.path}/languages',
         '--languages=en',
       ]);
 
-      final enFile = File(
-        '${tempDir.path}/resources/language_helper/languages/en.dart',
-      );
+      final enFile = File('${tempDir.path}/languages/data/en.dart');
       final content = enFile.readAsStringSync();
       expect(content.contains('Duplicated'), isFalse);
       expect(content.contains('"Hello": "Hello"'), isTrue);
@@ -465,14 +462,12 @@ void main() {
 
         generator.generate([
           '--path=${tempDir.path}',
-          '--output=${tempDir.path}/resources',
+          '--output=${tempDir.path}/languages',
           '--languages=en',
           '--include-invalid',
         ]);
 
-        final enFile = File(
-          '${tempDir.path}/resources/language_helper/languages/en.dart',
-        );
+        final enFile = File('${tempDir.path}/languages/data/en.dart');
         final content = enFile.readAsStringSync();
         expect(content.contains('// Duplicated'), isTrue);
         expect(
@@ -500,13 +495,11 @@ void main() {
 
       generator.generate([
         '--path=${libDir.path}',
-        '--output=${tempDir.path}/resources',
+        '--output=${tempDir.path}/languages',
         '--languages=en-US',
       ]);
 
-      final enUsFile = File(
-        '${tempDir.path}/resources/language_helper/languages/en-US.dart',
-      );
+      final enUsFile = File('${tempDir.path}/languages/data/en-US.dart');
       expect(enUsFile.existsSync(), isTrue);
       final content = enUsFile.readAsStringSync();
       expect(content.contains('const enUsLanguageData'), isTrue);

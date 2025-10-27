@@ -35,9 +35,8 @@ class LanguageHelperGenerator {
           ..addOption(
             'output',
             abbr: 'o',
-            help:
-                'Path to the folder that you want to save the output. Default --no-json: `--path`; Default --json: ./assets',
-            valueHelp: 'Default --no-json: `--path`; Default --json: ./assets',
+            help: 'Path to the folder that you want to save the output.',
+            valueHelp: 'Dart: ./lib/languages, JSON: ./assets/languages',
           )
           ..addOption(
             'languages',
@@ -137,24 +136,28 @@ class LanguageHelperGenerator {
     _log(LogLevel.debug, 'FVM: $fvm');
     _log(LogLevel.debug, 'Export to JSON: ${argResult['json']}');
 
-    final result = _generate(path);
+    final result = _generate(path, output ?? p.join('.', 'lib', 'languages'));
     if (result == null) {
       _log(LogLevel.error, 'Generation failed: No data parsed.');
       return;
     }
     if (argResult['json']) {
       _log(LogLevel.step, 'Exporting to JSON files...');
-      _exportJson(result, output ?? '$path/../assets/resources', languageCodes);
+      _exportJson(
+        result,
+        output ?? p.join('.', 'assets', 'languages'),
+        languageCodes,
+      );
       _log(LogLevel.success, 'JSON export completed.');
     } else {
       _log(LogLevel.step, 'Generating Dart language files...');
       final date = DateTime.now().toIso8601String();
-      final outputPath = output ?? '$path/resources';
-      _createLanguageDataFile(languageCodes, path: outputPath, date: date);
+      final outputPath = output ?? p.join('.', 'lib', 'languages');
+      _createCodesFile(languageCodes, output: outputPath, date: date);
       _createLanguageBoilerplateFiles(
         result,
         languageCodes,
-        path: outputPath,
+        output: outputPath,
         includeInvalid: includeInvalid,
         ignoreTodoCodes: ignoreTodoCodes,
         date: date,
@@ -183,7 +186,7 @@ class LanguageHelperGenerator {
     _log(LogLevel.success, 'Language helper code generation finished.');
   }
 
-  Map<String, List<ParsedData>>? _generate([String path = './lib/']) {
+  Map<String, List<ParsedData>>? _generate(String path, String outputPath) {
     _log(LogLevel.step, 'Parsing language data from directory: $path...');
 
     final dir = Directory(path);
@@ -221,7 +224,7 @@ class LanguageHelperGenerator {
         final normalizedPath = p.normalize(file.absolute.path);
 
         // Avoid getting data from this folder
-        if (normalizedPath.contains('language_helper/languages')) {
+        if (normalizedPath.contains(p.normalize(outputPath))) {
           _log(
             LogLevel.debug,
             'Skipping language helper file: $normalizedPath',
@@ -264,34 +267,27 @@ class LanguageHelperGenerator {
     return result;
   }
 
-  /// Create `_language_data_abstract,dart`
-  /// Create `language_data.dart`
-  void _createLanguageDataFile(
+  /// Create `codes.dart`
+  void _createCodesFile(
     List<String> languageCodes, {
-    String path = './lib/resources',
+    required String output,
     required String date,
   }) {
-    _log(
-      LogLevel.step,
-      'Starting creation of `language_data.dart` at $path/language_helper/language_data.dart...',
-    );
+    _log(LogLevel.step, 'Starting creation of `codes.dart` at $output...');
 
-    final desFile = File('$path/language_helper/language_data.dart');
+    final desFile = File(p.join(output, 'codes.dart'));
 
     if (desFile.existsSync()) {
-      _log(
-        LogLevel.info,
-        'File `language_data.dart` already exists. Recreating...',
-      );
+      _log(LogLevel.info, 'File `codes.dart` already exists. Recreating...');
     } else {
       _log(
         LogLevel.info,
-        'File `language_data.dart` does not exist. Creating new file...',
+        'File `codes.dart` does not exist. Creating new file...',
       );
     }
 
     desFile.createSync(recursive: true);
-    _log(LogLevel.info, 'Directory for `language_data.dart` ensured.');
+    _log(LogLevel.info, 'Directory for `codes.dart` ensured.');
 
     final entriesBuffer = StringBuffer();
     final dedupedCodes = <String>{
@@ -345,7 +341,7 @@ class LanguageHelperGenerator {
           ..writeln();
 
     for (final code in languageImportList) {
-      fileBuffer.writeln("import 'languages/$code.dart';");
+      fileBuffer.writeln("import 'data/$code.dart';");
     }
 
     fileBuffer
@@ -356,19 +352,19 @@ class LanguageHelperGenerator {
 
     desFile.writeAsStringSync(fileBuffer.toString());
 
-    _log(LogLevel.success, 'Successfully created `language_data.dart`.');
+    _log(LogLevel.success, 'Successfully created `codes.dart`.');
   }
 
   void _exportJson(
     Map<String, List<ParsedData>> data,
-    String path,
+    String output,
     List<String> languageCodes,
   ) {
     _log(
       LogLevel.debug,
-      'Exporting JSON with path: $path, language codes: $languageCodes',
+      'Exporting JSON with path: $output, language codes: $languageCodes',
     );
-    j.exportJson(data, path, languageCodes: languageCodes, logger: logger);
+    j.exportJson(data, output, languageCodes: languageCodes, logger: logger);
   }
 
   List<String> _parseLanguageCodes(String? raw) {
@@ -422,14 +418,14 @@ class LanguageHelperGenerator {
   void _createLanguageBoilerplateFiles(
     Map<String, List<ParsedData>> data,
     List<String> languageCodes, {
-    required String path,
+    required String output,
     bool includeInvalid = true,
     Set<String> ignoreTodoCodes = const <String>{},
     required String date,
   }) {
     _log(
       LogLevel.step,
-      'Starting creation of language boilerplate files at $path/language_helper/languages...',
+      'Starting creation of language boilerplate files at $output...',
     );
     if (languageCodes.isEmpty) {
       _log(
@@ -439,7 +435,7 @@ class LanguageHelperGenerator {
       return;
     }
 
-    final languagesDir = Directory('$path/language_helper/languages');
+    final languagesDir = Directory(p.join(output, 'data'));
     _log(LogLevel.info, 'Ensuring directory exists: ${languagesDir.path}');
     languagesDir.createSync(recursive: true);
     _log(LogLevel.info, 'Directory ensured.');
@@ -450,7 +446,7 @@ class LanguageHelperGenerator {
         continue;
       }
       _log(LogLevel.info, 'Processing language code: $code');
-      final file = File('${languagesDir.path}/$code.dart');
+      final file = File(p.join(languagesDir.path, '$code.dart'));
       _log(
         LogLevel.debug,
         'Reading existing language file for $code: ${file.path}',
