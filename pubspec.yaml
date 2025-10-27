@@ -10,7 +10,7 @@ dependencies:
   analyzer: ^8.1.1
   args: ^2.4.2
   path: ^1.9.1
-  language_helper: ^0.12.3
+  language_helper: ^0.12.4
   lite_logger: ^0.1.1
 
 dev_dependencies:
