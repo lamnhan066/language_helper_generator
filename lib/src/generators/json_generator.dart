@@ -115,7 +115,7 @@ void _exportJsonLanguageFiles(
         if (parsed.type != DataType.normal) continue;
         if (!seenTexts.add(parsed.noFormatedText)) continue;
         final key = parsed.noFormatedText;
-        final value = existing.containsKey(key) ? existing[key]! : '';
+        final value = existing[key] ?? key;
         merged[key] = value;
       }
     });

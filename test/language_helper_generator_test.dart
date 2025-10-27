@@ -397,15 +397,15 @@ void main() {
       final pathKey = '@path_page.dart';
       expect(enTranslations[pathKey], equals(''));
       expect(enTranslations['Hello'], equals('Bonjour'));
-      expect(enTranslations['World'], equals(''));
+      expect(enTranslations['World'], equals('World'));
 
       final viJson = File('${dataDir.path}/vi.json');
       expect(viJson.existsSync(), isTrue);
       final viTranslations =
           (jsonDecode(viJson.readAsStringSync()) as Map).cast<String, String>();
       expect(viTranslations[pathKey], equals(''));
-      expect(viTranslations['Hello'], equals(''));
-      expect(viTranslations['World'], equals(''));
+      expect(viTranslations['Hello'], equals('Hello'));
+      expect(viTranslations['World'], equals('World'));
     } finally {
       tempDir.deleteSync(recursive: true);
     }
