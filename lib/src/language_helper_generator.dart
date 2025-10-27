@@ -200,7 +200,7 @@ class LanguageHelperGenerator {
     );
     for (final file in allFiles) {
       // Only analyze the file ending with .dart
-      if (file is File && file.path.endsWith('.dart')) {
+      if (file is File && p.extension(file.path) == '.dart') {
         final normalizedPath = p.normalize(file.absolute.path);
 
         // Avoid getting data from this folder
