@@ -11,7 +11,7 @@ dependencies:
   args: ^2.4.2
   path: ^1.9.1
   language_helper: ^0.12.3
-  lite_logger: ^0.0.1
+  lite_logger: ^0.1.1
 
 dev_dependencies:
   test: ^1.25.5
