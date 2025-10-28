@@ -1,3 +1,7 @@
+## 0.7.1
+
+* Ignore `lines_longer_than_80_chars` in the generated files.
+
 ## 0.7.0
 
 * Updated the structure of generated paths and files:
