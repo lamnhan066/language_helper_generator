@@ -130,7 +130,9 @@ void _createCodesFile(
         )
         ..writeln()
         ..writeln('// Keeps format for the parser')
-        ..writeln('// ignore_for_file: always_use_package_imports')
+        ..writeln(
+          '// ignore_for_file: always_use_package_imports, lines_longer_than_80_chars',
+        )
         ..writeln()
         ..writeln("import 'package:language_helper/language_helper.dart';")
         ..writeln();
@@ -210,7 +212,9 @@ void _createLanguageBoilerplateFiles(
       )
       ..writeln()
       ..writeln('// Keeps format for the parser')
-      ..writeln('// ignore_for_file: prefer_single_quotes');
+      ..writeln(
+        '// ignore_for_file: prefer_single_quotes, lines_longer_than_80_chars',
+      );
 
     if (existing.imports.isNotEmpty) {
       buffer.writeln();
