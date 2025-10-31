@@ -211,7 +211,7 @@ void _createLanguageBoilerplateFiles(
       ..writeln()
       ..writeln('// Keeps format for the parser')
       ..writeln(
-        '// ignore_for_file: prefer_single_quotes, lines_longer_than_80_chars',
+        '// ignore_for_file: prefer_single_quotes, lines_longer_than_80_chars, file_names',
       );
 
     if (existing.imports.isNotEmpty) {
