@@ -1,3 +1,8 @@
+## 0.7.2
+
+* Able to generate `--languages=zh_CN,zh_TW` with correct language code.
+* Ignore `file_names` lint.
+
 ## 0.7.1
 
 * Ignore `lines_longer_than_80_chars` in the generated files.
