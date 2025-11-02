@@ -1,3 +1,7 @@
+## 0.7.4
+
+* Run `dart format .`.
+
 ## 0.7.3
 
 * Remove the `language_helper` from the dependencies.
