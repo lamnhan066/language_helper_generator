@@ -1,3 +1,7 @@
+## 0.7.3
+
+* Remove the `language_helper` from the dependencies.
+
 ## 0.7.2
 
 * Able to generate `--languages=zh_CN,zh_TW` with correct language code.
