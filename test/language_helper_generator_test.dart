@@ -502,7 +502,7 @@ void main() {
       final enUsFile = File('${tempDir.path}/languages/data/en-US.dart');
       expect(enUsFile.existsSync(), isTrue);
       final content = enUsFile.readAsStringSync();
-      expect(content.contains('const enUsLanguageData'), isTrue);
+      expect(content.contains('const enUSLanguageData'), isTrue);
     } finally {
       tempDir.deleteSync(recursive: true);
     }
