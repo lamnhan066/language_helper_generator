@@ -1,3 +1,7 @@
+## 0.7.4
+
+* Bump `lite_logger` to v0.2.0.
+
 ## 0.7.3
 
 * Remove the `language_helper` from the dependencies.
