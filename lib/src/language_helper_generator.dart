@@ -94,9 +94,12 @@ class LanguageHelperGenerator {
     final argResult = parser.parse(args);
 
     if (argResult.flag('verbose')) {
-      logger = LiteLogger(minLevel: LogLevel.debug);
+      logger = LiteLogger(
+        name: 'LanguageHelperGenerator',
+        minLevel: LogLevel.debug,
+      );
     } else {
-      logger = LiteLogger();
+      logger = LiteLogger(name: 'LanguageHelperGenerator');
     }
 
     _log(LogLevel.info, 'Starting language helper code generation...');
