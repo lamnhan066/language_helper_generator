@@ -18,13 +18,20 @@ void exportDart(
   bool dartFormat = true,
   bool dartFix = true,
   bool fvm = false,
+  bool isLazy = true,
   LiteLogger? logger,
 }) {
   logger ??= LiteLogger(minLevel: LogLevel.debug);
   logger.log('Exporting Dart files...', LogLevel.step);
 
   final date = DateTime.now().toIso8601String();
-  _createCodesFile(languageCodes, output: output, date: date, logger: logger);
+  _createCodesFile(
+    languageCodes,
+    output: output,
+    date: date,
+    isLazy: isLazy,
+    logger: logger,
+  );
   _createLanguageBoilerplateFiles(
     data,
     languageCodes,
@@ -63,6 +70,7 @@ void _createCodesFile(
   List<String> languageCodes, {
   required String output,
   required String date,
+  bool isLazy = true,
   required LiteLogger logger,
 }) {
   logger.log('Starting creation of `codes.dart` at $output...', LogLevel.step);
@@ -101,7 +109,11 @@ void _createCodesFile(
     if (enumName == null || !seenEnumNames.add(enumName)) continue;
     final constName = _languageConstName(code);
     if (constName == 'languageData') continue;
-    entriesBuffer.writeln('  LanguageCodes.$enumName: () => $constName,');
+    if (isLazy) {
+      entriesBuffer.writeln('  LanguageCodes.$enumName: () => $constName,');
+    } else {
+      entriesBuffer.writeln('  LanguageCodes.$enumName: $constName,');
+    }
     if (languageImportSet.add(code)) {
       languageImportList.add(code);
     }
@@ -109,7 +121,11 @@ void _createCodesFile(
 
   if (entriesBuffer.isEmpty) {
     final constName = _languageConstName('en');
-    entriesBuffer.writeln('  LanguageCodes.en: () => $constName,');
+    if (isLazy) {
+      entriesBuffer.writeln('  LanguageCodes.en: () => $constName,');
+    } else {
+      entriesBuffer.writeln('  LanguageCodes.en: $constName,');
+    }
     if (languageImportSet.add('en')) {
       languageImportList.add('en');
     }
@@ -143,7 +159,11 @@ void _createCodesFile(
 
   fileBuffer
     ..writeln()
-    ..writeln('final LazyLanguageData languageData = {')
+    ..writeln(
+      isLazy
+          ? 'final LazyLanguageData languageData = {'
+          : 'final LanguageData languageData = {',
+    )
     ..write(entriesBuffer.toString())
     ..writeln('};');
 

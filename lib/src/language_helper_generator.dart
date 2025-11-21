@@ -84,6 +84,12 @@ class LanguageHelperGenerator {
             help: 'Export translations to JSON files instead of Dart files.',
           )
           ..addFlag(
+            'lazy',
+            defaultsTo: true,
+            help:
+                'Generate LazyLanguageData (lazy loading) instead of LanguageData.',
+          )
+          ..addFlag(
             'verbose',
             abbr: 'v',
             help: 'Show verbose logs',
@@ -127,6 +133,7 @@ class LanguageHelperGenerator {
     final dartFormat = argResult['dart-format'] as bool;
     final dartFix = argResult['dart-fix'] as bool;
     final fvm = argResult['fvm'] as bool;
+    final isLazy = argResult['lazy'] as bool;
 
     _log(LogLevel.debug, 'Path: $path');
     _log(LogLevel.debug, 'Output: ${output ?? 'default'}');
@@ -137,6 +144,7 @@ class LanguageHelperGenerator {
     _log(LogLevel.debug, 'Dart Fix: $dartFix');
     _log(LogLevel.debug, 'FVM: $fvm');
     _log(LogLevel.debug, 'Export to JSON: ${argResult['json']}');
+    _log(LogLevel.debug, 'Lazy: $isLazy');
 
     final result = _generate(path, output ?? p.join('.', 'lib', 'languages'));
     if (result == null) {
@@ -163,6 +171,7 @@ class LanguageHelperGenerator {
         dartFormat: dartFormat,
         dartFix: dartFix,
         fvm: fvm,
+        isLazy: isLazy,
         logger: logger,
       );
       _log(LogLevel.success, 'Dart language file generation complete.');

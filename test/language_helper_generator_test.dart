@@ -507,4 +507,142 @@ void main() {
       tempDir.deleteSync(recursive: true);
     }
   });
+
+  test('Default behavior generates LazyLanguageData with callbacks', () {
+    final tempDir = Directory.systemTemp.createTempSync('lang_helper_lazy_');
+    try {
+      final generator = LanguageHelperGenerator();
+      final libDir = Directory('${tempDir.path}/lib')..createSync();
+      File('${libDir.path}/page.dart').writeAsStringSync('''
+import 'package:language_helper/language_helper.dart';
+
+void main() {
+  'Hello'.tr;
+  'World'.tr;
+}
+''');
+
+      generator.generate([
+        '--path=${libDir.path}',
+        '--output=${tempDir.path}/languages',
+        '--languages=en,vi',
+      ]);
+
+      final codesFile = File('${tempDir.path}/languages/codes.dart');
+      expect(codesFile.existsSync(), isTrue);
+      final codesContent = codesFile.readAsStringSync();
+      expect(
+        codesContent.contains('final LazyLanguageData languageData = {'),
+        isTrue,
+      );
+      expect(
+        codesContent.contains('LanguageCodes.en: () => enLanguageData,'),
+        isTrue,
+      );
+      expect(
+        codesContent.contains('LanguageCodes.vi: () => viLanguageData,'),
+        isTrue,
+      );
+      expect(
+        codesContent.contains('LanguageCodes.en: enLanguageData,'),
+        isFalse,
+      );
+      expect(
+        codesContent.contains('LanguageCodes.vi: viLanguageData,'),
+        isFalse,
+      );
+    } finally {
+      tempDir.deleteSync(recursive: true);
+    }
+  });
+
+  test('--no-lazy flag generates LanguageData with direct references', () {
+    final tempDir = Directory.systemTemp.createTempSync('lang_helper_no_lazy_');
+    try {
+      final generator = LanguageHelperGenerator();
+      final libDir = Directory('${tempDir.path}/lib')..createSync();
+      File('${libDir.path}/page.dart').writeAsStringSync('''
+import 'package:language_helper/language_helper.dart';
+
+void main() {
+  'Hello'.tr;
+  'World'.tr;
+}
+''');
+
+      generator.generate([
+        '--path=${libDir.path}',
+        '--output=${tempDir.path}/languages',
+        '--languages=en,vi',
+        '--no-lazy',
+      ]);
+
+      final codesFile = File('${tempDir.path}/languages/codes.dart');
+      expect(codesFile.existsSync(), isTrue);
+      final codesContent = codesFile.readAsStringSync();
+      expect(
+        codesContent.contains('final LanguageData languageData = {'),
+        isTrue,
+      );
+      expect(
+        codesContent.contains('LanguageCodes.en: enLanguageData,'),
+        isTrue,
+      );
+      expect(
+        codesContent.contains('LanguageCodes.vi: viLanguageData,'),
+        isTrue,
+      );
+      expect(
+        codesContent.contains('LanguageCodes.en: () => enLanguageData,'),
+        isFalse,
+      );
+      expect(
+        codesContent.contains('LanguageCodes.vi: () => viLanguageData,'),
+        isFalse,
+      );
+      expect(codesContent.contains('LazyLanguageData'), isFalse);
+    } finally {
+      tempDir.deleteSync(recursive: true);
+    }
+  });
+
+  test('--lazy flag explicitly generates LazyLanguageData', () {
+    final tempDir = Directory.systemTemp.createTempSync(
+      'lang_helper_lazy_explicit_',
+    );
+    try {
+      final generator = LanguageHelperGenerator();
+      final libDir = Directory('${tempDir.path}/lib')..createSync();
+      File('${libDir.path}/page.dart').writeAsStringSync('''
+import 'package:language_helper/language_helper.dart';
+
+void main() {
+  'Hello'.tr;
+}
+''');
+
+      generator.generate([
+        '--path=${libDir.path}',
+        '--output=${tempDir.path}/languages',
+        '--languages=en',
+        '--lazy',
+      ]);
+
+      final codesFile = File('${tempDir.path}/languages/codes.dart');
+      expect(codesFile.existsSync(), isTrue);
+      final codesContent = codesFile.readAsStringSync();
+      expect(
+        codesContent.contains('final LazyLanguageData languageData = {'),
+        isTrue,
+      );
+      expect(
+        codesContent.contains('LanguageCodes.en: () => enLanguageData'),
+        isTrue,
+        reason:
+            'Expected to find "LanguageCodes.en: () => enLanguageData" in generated file. Content:\n$codesContent',
+      );
+    } finally {
+      tempDir.deleteSync(recursive: true);
+    }
+  });
 }
