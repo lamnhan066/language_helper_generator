@@ -14,11 +14,58 @@ import 'package:language_helper_generator/src/utils/list_all_files.dart';
 import 'package:lite_logger/lite_logger.dart';
 import 'package:path/path.dart' as p;
 
+/// A generator that scans Dart code for translation strings and generates
+/// language files for the [language_helper](https://pub.dev/packages/language_helper) package.
+///
+/// This class analyzes your project's Dart files to find translation strings
+/// using language_helper extensions (`tr`, `trP`, `trT`, `trF`) and the
+/// `translate` method, then generates organized translation files in either
+/// Dart or JSON format.
+///
+/// Example usage:
+/// ```dart
+/// final generator = LanguageHelperGenerator();
+/// generator.generate(['--languages=en,vi', '--path=./lib']);
+/// ```
 class LanguageHelperGenerator {
+  /// The logger instance used for outputting generation progress and errors.
+  ///
+  /// This logger is initialized when [generate] is called and can be configured
+  /// with the `--verbose` flag to show debug-level messages.
   late LiteLogger logger;
 
   void _log(LogLevel level, String message) => logger.log(message, level);
 
+  /// Generates translation files based on the provided command-line arguments.
+  ///
+  /// This method parses command-line arguments, scans the specified directory
+  /// for translation strings, and generates language files in either Dart or
+  /// JSON format.
+  ///
+  /// Supported arguments:
+  /// - `--path` or `-p`: Path to the main folder to scan (default: `./lib`)
+  /// - `--output` or `-o`: Path to save the output files
+  /// - `--languages` or `-l`: Comma-separated language codes to generate (default: `en`)
+  /// - `--ignore-todo` or `--todo`: Language codes that should not receive TODO comments
+  /// - `--include-invalid` or `--invalid`: Include commented-out duplicated or invalid entries
+  /// - `--dart-format` or `--format`: Run `dart format` on generated files (default: true)
+  /// - `--dart-fix` or `--fix`: Run `dart fix --apply` on generated files (default: true)
+  /// - `--fvm`: Use `fvm` prefix when running dart commands
+  /// - `--json`: Export to JSON files instead of Dart files
+  /// - `--lazy`: Generate `LazyLanguageData` instead of `LanguageData` (default: true)
+  /// - `--verbose` or `-v`: Show verbose logs
+  /// - `--help` or `-h`: Show help message
+  ///
+  /// Example:
+  /// ```dart
+  /// final generator = LanguageHelperGenerator();
+  /// generator.generate([
+  ///   '--languages=en,vi',
+  ///   '--ignore-todo=en',
+  ///   '--path=./lib',
+  ///   '--output=./lib/languages',
+  /// ]);
+  /// ```
   void generate(List<String> args) {
     final parser =
         ArgParser()
@@ -253,6 +300,27 @@ class LanguageHelperGenerator {
     return result;
   }
 
+  /// Parses a Dart code string and extracts translation data.
+  ///
+  /// This method analyzes the provided text and returns a list of [ParsedData]
+  /// objects containing all translation strings found in the code.
+  ///
+  /// The parser looks for:
+  /// - String literals used with language_helper extensions (`tr`, `trP`, `trT`, `trF`)
+  /// - Strings passed to the `translate` method
+  ///
+  /// Returns an empty list if no translation data is found.
+  ///
+  /// Example:
+  /// ```dart
+  /// final generator = LanguageHelperGenerator();
+  /// final code = '''
+  ///   Text('Hello'.tr)
+  ///   Text('World'.trP('world'))
+  /// ''';
+  /// final parsed = generator.parse(code);
+  /// // Returns ParsedData objects for 'Hello' and 'World'
+  /// ```
   List<ParsedData> parse(String text) {
     List<ParsedData> result = [];
     result.addAll(parses(text));
