@@ -1,3 +1,8 @@
+## 0.8.0
+
+* Bump dart sdk to ^3.9.0.
+* Bump analyzer to ^9.0.0.
+
 ## 0.7.6
 
 * Add `--lazy` arg to generate `LazyLanguageDat`a (lazy loading) instead of `LanguageData` which default is set to `true`.
