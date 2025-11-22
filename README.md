@@ -35,6 +35,7 @@ This creates:
 | `--ignore-todo` | Skip TODO markers for specific languages | `--ignore-todo=en` |
 | `--path` | Custom output directory | `--path=./lib/resources` |
 | `--json` | Generate JSON files instead of Dart | `--json` |
+| `--no-lazy` | Generate `LanguageData` instead of `LazyLanguageData` | `--no-lazy` |
 
 ## Examples
 
@@ -62,6 +63,12 @@ dart run language_helper_generator --languages=en,vi --json
 dart run language_helper_generator --path=./assets/languages --languages=en,vi
 ```
 
+**Generate non-lazy LanguageData (eager loading):**
+
+```bash
+dart run language_helper_generator --languages=en,vi --no-lazy
+```
+
 ## Generated Files
 
 **Dart format (default):**
@@ -86,11 +93,21 @@ assets/languages/
 
 ## Usage in your app
 
-**Dart Generated Data:**
+**Dart Generated Data (Lazy Loading - default):**
 
 ```dart
 await LanguageHelper.instance.initial(
   data: [LanguageDataProvider.lazyData(languageData)],
+  initialCode: LanguageCodes.en,
+  isDebug: !kReleaseMode,
+);
+```
+
+**Dart Generated Data (Eager Loading - with --no-lazy):**
+
+```dart
+await LanguageHelper.instance.initial(
+  data: [LanguageDataProvider.data(languageData)],
   initialCode: LanguageCodes.en,
   isDebug: !kReleaseMode,
 );
