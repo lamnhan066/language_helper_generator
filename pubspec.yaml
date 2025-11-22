@@ -4,10 +4,10 @@ version: 0.7.6
 homepage: https://github.com/lamnhan066/language_helper_generator
 
 environment:
-  sdk: ^3.7.0
+  sdk: ^3.9.0
 
 dependencies:
-  analyzer: ^8.4.1
+  analyzer: ^9.0.0
   args: ^2.7.0
   path: ^1.9.1
   lite_logger: ^0.2.0
