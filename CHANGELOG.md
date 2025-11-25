@@ -1,11 +1,6 @@
-## 0.8.1
+## 0.7.7
 
 * Add `--keep-deprecated` flag to keep deprecated translations that are no longer in use. By default, unused translations are automatically removed when regenerating.
-
-## 0.8.0
-
-* Bump dart sdk to ^3.9.0.
-* Bump analyzer to ^9.0.0.
 
 ## 0.7.6
 
