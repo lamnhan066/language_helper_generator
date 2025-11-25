@@ -36,6 +36,7 @@ This creates:
 | `--path` | Custom output directory | `--path=./lib/resources` |
 | `--json` | Generate JSON files instead of Dart | `--json` |
 | `--no-lazy` | Generate `LanguageData` instead of `LazyLanguageData` | `--no-lazy` |
+| `--keep-deprecated` | Keep deprecated translations that are no longer in use | `--keep-deprecated` |
 
 ## Examples
 
@@ -67,6 +68,12 @@ dart run language_helper_generator --path=./assets/languages --languages=en,vi
 
 ```bash
 dart run language_helper_generator --languages=en,vi --no-lazy
+```
+
+**Keep deprecated translations:**
+
+```bash
+dart run language_helper_generator --languages=en,vi --keep-deprecated
 ```
 
 ## Generated Files
@@ -132,7 +139,7 @@ await LanguageHelper.instance.initial(
 - **Smart**: Preserves existing translations
 - **Organized**: Groups translations by file path
 - **Helpful**: Adds TODO markers for missing translations
-- **Clean**: Removes unused translation keys automatically
+- **Clean**: Removes unused translation keys automatically (can be disabled with `--keep-deprecated`)
 
 ## Contributing
 
