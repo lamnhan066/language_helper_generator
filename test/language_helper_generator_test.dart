@@ -645,4 +645,133 @@ void main() {
       tempDir.deleteSync(recursive: true);
     }
   });
+
+  test('Default behavior removes deprecated translations', () {
+    final tempDir = Directory.systemTemp.createTempSync(
+      'lang_helper_remove_deprecated_',
+    );
+    try {
+      final generator = LanguageHelperGenerator();
+      final libDir = Directory('${tempDir.path}/lib')..createSync();
+      final sourceFile = File('${libDir.path}/page.dart');
+      sourceFile.writeAsStringSync('''
+import 'package:language_helper/language_helper.dart';
+
+void main() {
+  'Hello'.tr;
+}
+''');
+
+      final languagesDir = Directory('${tempDir.path}/languages/data')
+        ..createSync(recursive: true);
+      final enFile = File('${languagesDir.path}/en.dart');
+      enFile.writeAsStringSync('''
+import 'package:language_helper/language_helper.dart';
+
+const enLanguageData = <String, dynamic>{
+  "Hello": "Bonjour",
+  "Deprecated": "Deprecated translation",
+};
+''');
+
+      generator.generate([
+        '--path=${libDir.path}',
+        '--output=${tempDir.path}/languages',
+        '--languages=en',
+      ]);
+
+      final content = enFile.readAsStringSync();
+      expect(content.contains('"Hello": "Bonjour"'), isTrue);
+      expect(content.contains('"Deprecated"'), isFalse);
+    } finally {
+      tempDir.deleteSync(recursive: true);
+    }
+  });
+
+  test('--keep-deprecated flag keeps deprecated translations', () {
+    final tempDir = Directory.systemTemp.createTempSync(
+      'lang_helper_keep_deprecated_',
+    );
+    try {
+      final generator = LanguageHelperGenerator();
+      final libDir = Directory('${tempDir.path}/lib')..createSync();
+      final sourceFile = File('${libDir.path}/page.dart');
+      sourceFile.writeAsStringSync('''
+import 'package:language_helper/language_helper.dart';
+
+void main() {
+  'Hello'.tr;
+}
+''');
+
+      final languagesDir = Directory('${tempDir.path}/languages/data')
+        ..createSync(recursive: true);
+      final enFile = File('${languagesDir.path}/en.dart');
+      enFile.writeAsStringSync('''
+import 'package:language_helper/language_helper.dart';
+
+const enLanguageData = <String, dynamic>{
+  "Hello": "Bonjour",
+  "Deprecated": "Deprecated translation",
+};
+''');
+
+      generator.generate([
+        '--path=${libDir.path}',
+        '--output=${tempDir.path}/languages',
+        '--languages=en',
+        '--keep-deprecated',
+      ]);
+
+      final content = enFile.readAsStringSync();
+      expect(content.contains('"Hello": "Bonjour"'), isTrue);
+      expect(content.contains('"Deprecated"'), isTrue);
+      expect(content.contains('Deprecated translations'), isTrue);
+    } finally {
+      tempDir.deleteSync(recursive: true);
+    }
+  });
+
+  test('--keep-deprecated flag works with JSON export', () {
+    final tempDir = Directory.systemTemp.createTempSync(
+      'lang_helper_json_keep_deprecated_',
+    );
+    try {
+      final generator = LanguageHelperGenerator();
+      final libDir = Directory('${tempDir.path}/lib')..createSync();
+      final sourceFile = File('${libDir.path}/page.dart');
+      sourceFile.writeAsStringSync('''
+import 'package:language_helper/language_helper.dart';
+
+void main() {
+  'Hello'.tr;
+}
+''');
+
+      final languagesDir = Directory('${tempDir.path}/assets/languages/data')
+        ..createSync(recursive: true);
+      final enJson = File('${languagesDir.path}/en.json');
+      enJson.writeAsStringSync(
+        jsonEncode(<String, String>{
+          'Hello': 'Bonjour',
+          'Deprecated': 'Deprecated translation',
+        }),
+      );
+
+      generator.generate([
+        '--path=${libDir.path}',
+        '--json',
+        '--output=${tempDir.path}/assets/languages',
+        '--languages=en',
+        '--keep-deprecated',
+      ]);
+
+      final content = enJson.readAsStringSync();
+      final decoded = jsonDecode(content) as Map<String, dynamic>;
+      expect(decoded['Hello'], equals('Bonjour'));
+      expect(decoded['Deprecated'], equals('Deprecated translation'));
+    } finally {
+      tempDir.deleteSync(recursive: true);
+    }
+  });
 }

@@ -53,6 +53,7 @@ class LanguageHelperGenerator {
   /// - `--fvm`: Use `fvm` prefix when running dart commands
   /// - `--json`: Export to JSON files instead of Dart files
   /// - `--lazy`: Generate `LazyLanguageData` instead of `LanguageData` (default: true)
+  /// - `--keep-deprecated`: Keep deprecated translations that are no longer in use (default: false)
   /// - `--verbose` or `-v`: Show verbose logs
   /// - `--help` or `-h`: Show help message
   ///
@@ -135,6 +136,12 @@ class LanguageHelperGenerator {
             'Generate LazyLanguageData (lazy loading) instead of LanguageData.',
       )
       ..addFlag(
+        'keep-deprecated',
+        help:
+            'Keep deprecated translations that are no longer in use. By default, unused translations are removed.',
+        defaultsTo: false,
+      )
+      ..addFlag(
         'verbose',
         abbr: 'v',
         help: 'Show verbose logs',
@@ -179,6 +186,7 @@ class LanguageHelperGenerator {
     final dartFix = argResult['dart-fix'] as bool;
     final fvm = argResult['fvm'] as bool;
     final isLazy = argResult['lazy'] as bool;
+    final keepDeprecated = argResult['keep-deprecated'] as bool;
 
     _log(LogLevel.debug, 'Path: $path');
     _log(LogLevel.debug, 'Output: ${output ?? 'default'}');
@@ -190,6 +198,7 @@ class LanguageHelperGenerator {
     _log(LogLevel.debug, 'FVM: $fvm');
     _log(LogLevel.debug, 'Export to JSON: ${argResult['json']}');
     _log(LogLevel.debug, 'Lazy: $isLazy');
+    _log(LogLevel.debug, 'Keep Deprecated: $keepDeprecated');
 
     final result = _generate(path, output ?? p.join('.', 'lib', 'languages'));
     if (result == null) {
@@ -202,6 +211,7 @@ class LanguageHelperGenerator {
         result,
         output ?? p.join('.', 'assets', 'languages'),
         languageCodes,
+        keepDeprecated: keepDeprecated,
       );
       _log(LogLevel.success, 'JSON export completed.');
     } else {
@@ -217,6 +227,7 @@ class LanguageHelperGenerator {
         dartFix: dartFix,
         fvm: fvm,
         isLazy: isLazy,
+        keepDeprecated: keepDeprecated,
         logger: logger,
       );
       _log(LogLevel.success, 'Dart language file generation complete.');
@@ -329,13 +340,20 @@ class LanguageHelperGenerator {
   void _exportJson(
     Map<String, List<ParsedData>> data,
     String output,
-    List<String> languageCodes,
-  ) {
+    List<String> languageCodes, {
+    bool keepDeprecated = false,
+  }) {
     _log(
       LogLevel.debug,
       'Exporting JSON with path: $output, language codes: $languageCodes',
     );
-    j.exportJson(data, output, languageCodes: languageCodes, logger: logger);
+    j.exportJson(
+      data,
+      output,
+      languageCodes: languageCodes,
+      keepDeprecated: keepDeprecated,
+      logger: logger,
+    );
   }
 
   List<String> _parseLanguageCodes(String? raw) {

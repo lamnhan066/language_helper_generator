@@ -10,12 +10,19 @@ void exportJson(
   Map<String, List<ParsedData>> data,
   String output, {
   List<String> languageCodes = const [],
+  bool keepDeprecated = false,
   LiteLogger? logger,
 }) {
   logger ??= LiteLogger(minLevel: LogLevel.debug);
   logger.log('Exporting Json...', LogLevel.step);
   _exportJsonCodes(output, languageCodes, logger);
-  _exportJsonLanguageFiles(data, output, languageCodes, logger);
+  _exportJsonLanguageFiles(
+    data,
+    output,
+    languageCodes,
+    keepDeprecated: keepDeprecated,
+    logger: logger,
+  );
   logger.log('Exported Json', LogLevel.success);
 }
 
@@ -72,9 +79,10 @@ void _exportJsonCodes(
 void _exportJsonLanguageFiles(
   Map<String, List<ParsedData>> data,
   String output,
-  List<String> languageCodes,
-  LiteLogger logger,
-) {
+  List<String> languageCodes, {
+  bool keepDeprecated = false,
+  required LiteLogger logger,
+}) {
   if (languageCodes.isEmpty) return;
 
   final languagesDir = Directory(p.join(output, 'data'));
@@ -105,11 +113,13 @@ void _exportJsonLanguageFiles(
 
     final merged = <String, String>{};
     final seenTexts = <String>{};
+    final processedKeys = <String>{};
 
     data.forEach((filePath, values) {
       final relativePath = p.relative(filePath);
       final pathKey = '@path_$relativePath';
       merged[pathKey] = existing[pathKey] ?? '';
+      processedKeys.add(pathKey);
 
       for (final parsed in values) {
         if (parsed.type != DataType.normal) continue;
@@ -117,8 +127,18 @@ void _exportJsonLanguageFiles(
         final key = parsed.noFormatedText;
         final value = existing[key] ?? key;
         merged[key] = value;
+        processedKeys.add(key);
       }
     });
+
+    // Add deprecated translations if keepDeprecated is true
+    if (keepDeprecated) {
+      for (final entry in existing.entries) {
+        if (!processedKeys.contains(entry.key)) {
+          merged[entry.key] = entry.value;
+        }
+      }
+    }
 
     JsonEncoder encoder = const JsonEncoder.withIndent('  ');
     file.writeAsStringSync(encoder.convert(merged));

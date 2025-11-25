@@ -19,6 +19,7 @@ void exportDart(
   bool dartFix = true,
   bool fvm = false,
   bool isLazy = true,
+  bool keepDeprecated = false,
   LiteLogger? logger,
 }) {
   logger ??= LiteLogger(minLevel: LogLevel.debug);
@@ -38,6 +39,7 @@ void exportDart(
     output: output,
     includeInvalid: includeInvalid,
     ignoreTodoCodes: ignoreTodoCodes,
+    keepDeprecated: keepDeprecated,
     date: date,
     logger: logger,
   );
@@ -176,6 +178,7 @@ void _createLanguageBoilerplateFiles(
   required String output,
   bool includeInvalid = true,
   Set<String> ignoreTodoCodes = const <String>{},
+  bool keepDeprecated = false,
   required String date,
   required LiteLogger logger,
 }) {
@@ -213,6 +216,7 @@ void _createLanguageBoilerplateFiles(
       LogLevel.debug,
     );
     final seenTexts = <ParsedData>{};
+    final processedKeys = <String>{};
     final buffer = StringBuffer();
 
     buffer
@@ -265,6 +269,7 @@ void _createLanguageBoilerplateFiles(
         );
 
       buffer.writeln('  $pathKeyLiteral: $pathValueExpression,');
+      processedKeys.add(pathKey);
 
       for (final parsed in values) {
         final key = parsed.noFormatedText;
@@ -292,6 +297,7 @@ void _createLanguageBoilerplateFiles(
             buffer.writeln(
               '  $commentPrefix$keyLiteral: $valueExpression,$commentSuffix',
             );
+            processedKeys.add(key);
           }
           continue;
         }
@@ -309,8 +315,31 @@ void _createLanguageBoilerplateFiles(
           buffer.writeln('  ${todoComment(code)}');
         }
         buffer.writeln('  $keyLiteral: $valueExpression,');
+        processedKeys.add(key);
       }
     });
+
+    // Add deprecated translations if keepDeprecated is true
+    if (keepDeprecated) {
+      final deprecatedEntries = existing.entries.entries
+          .where((entry) => !processedKeys.contains(entry.key))
+          .toList();
+      if (deprecatedEntries.isNotEmpty) {
+        buffer
+          ..writeln()
+          ..writeln(
+            '  ///===========================================================================',
+          )
+          ..writeln('  /// Deprecated translations (no longer in use)')
+          ..writeln(
+            '  ///===========================================================================',
+          );
+        for (final entry in deprecatedEntries) {
+          final keyLiteral = _stringLiteral(entry.key);
+          buffer.writeln('  $keyLiteral: ${entry.value.expression},');
+        }
+      }
+    }
 
     buffer.writeln('};');
 
