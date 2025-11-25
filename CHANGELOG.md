@@ -1,3 +1,7 @@
+## 0.8.2
+
+* Downgrade analyzer dependency to version 8.4.1 to make it compatible with the more Flutter versions.
+
 ## 0.8.1
 
 * Add `--keep-deprecated` flag to keep deprecated translations that are no longer in use. By default, unused translations are automatically removed when regenerating.
