@@ -388,12 +388,12 @@ void main() {
         '--languages=en,vi,en',
       ]);
 
-      final codes =
-          (jsonDecode(codesFile.readAsStringSync()) as List).cast<String>();
+      final codes = (jsonDecode(codesFile.readAsStringSync()) as List)
+          .cast<String>();
       expect(codes, equals(['en', 'vi']));
 
-      final enTranslations =
-          (jsonDecode(enJson.readAsStringSync()) as Map).cast<String, String>();
+      final enTranslations = (jsonDecode(enJson.readAsStringSync()) as Map)
+          .cast<String, String>();
       final pathKey = '@path_page.dart';
       expect(enTranslations[pathKey], equals(''));
       expect(enTranslations['Hello'], equals('Bonjour'));
@@ -401,8 +401,8 @@ void main() {
 
       final viJson = File('${dataDir.path}/vi.json');
       expect(viJson.existsSync(), isTrue);
-      final viTranslations =
-          (jsonDecode(viJson.readAsStringSync()) as Map).cast<String, String>();
+      final viTranslations = (jsonDecode(viJson.readAsStringSync()) as Map)
+          .cast<String, String>();
       expect(viTranslations[pathKey], equals(''));
       expect(viTranslations['Hello'], equals('Hello'));
       expect(viTranslations['World'], equals('World'));

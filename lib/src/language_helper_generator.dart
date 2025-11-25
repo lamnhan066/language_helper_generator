@@ -67,83 +67,81 @@ class LanguageHelperGenerator {
   /// ]);
   /// ```
   void generate(List<String> args) {
-    final parser =
-        ArgParser()
-          ..addOption(
-            'path',
-            abbr: 'p',
-            help:
-                'Path to the main folder that you want to to create a base language. Default is `./lib`.',
-            valueHelp: './lib',
-            defaultsTo: './lib',
-          )
-          ..addOption(
-            'output',
-            abbr: 'o',
-            help: 'Path to the folder that you want to save the output.',
-            valueHelp: 'Dart: ./lib/languages, JSON: ./assets/languages',
-          )
-          ..addOption(
-            'languages',
-            abbr: 'l',
-            help:
-                'Generate boilerplate translation files for the provided comma separated language codes.',
-            defaultsTo: 'en',
-            valueHelp: 'en,vi',
-          )
-          ..addOption(
-            'ignore-todo',
-            aliases: ['todo'],
-            help:
-                'Comma separated language codes that should not receive TODO comments when generating boilerplate.',
-            valueHelp: 'en,vi',
-          )
-          ..addFlag(
-            'include-invalid',
-            aliases: ['invalid'],
-            negatable: false,
-            help:
-                'Include commented-out duplicated or invalid entries in outputs.',
-            defaultsTo: false,
-          )
-          ..addFlag(
-            'dart-format',
-            aliases: ['format'],
-            help: 'Running `dart format` for the generated files.',
-            negatable: false,
-            defaultsTo: true,
-          )
-          ..addFlag(
-            'dart-fix',
-            aliases: ['fix'],
-            negatable: false,
-            help: 'Running `dart fix --apply` for the generated files.',
-            defaultsTo: true,
-          )
-          ..addFlag(
-            'fvm',
-            help: 'Should use `fvm` prefix when running the `dart` commands',
-            defaultsTo: false,
-          )
-          ..addFlag(
-            'json',
-            defaultsTo: false,
-            help: 'Export translations to JSON files instead of Dart files.',
-          )
-          ..addFlag(
-            'lazy',
-            defaultsTo: true,
-            help:
-                'Generate LazyLanguageData (lazy loading) instead of LanguageData.',
-          )
-          ..addFlag(
-            'verbose',
-            abbr: 'v',
-            help: 'Show verbose logs',
-            negatable: false,
-            defaultsTo: false,
-          )
-          ..addFlag('help', abbr: 'h', help: 'Show help', negatable: false);
+    final parser = ArgParser()
+      ..addOption(
+        'path',
+        abbr: 'p',
+        help:
+            'Path to the main folder that you want to to create a base language. Default is `./lib`.',
+        valueHelp: './lib',
+        defaultsTo: './lib',
+      )
+      ..addOption(
+        'output',
+        abbr: 'o',
+        help: 'Path to the folder that you want to save the output.',
+        valueHelp: 'Dart: ./lib/languages, JSON: ./assets/languages',
+      )
+      ..addOption(
+        'languages',
+        abbr: 'l',
+        help:
+            'Generate boilerplate translation files for the provided comma separated language codes.',
+        defaultsTo: 'en',
+        valueHelp: 'en,vi',
+      )
+      ..addOption(
+        'ignore-todo',
+        aliases: ['todo'],
+        help:
+            'Comma separated language codes that should not receive TODO comments when generating boilerplate.',
+        valueHelp: 'en,vi',
+      )
+      ..addFlag(
+        'include-invalid',
+        aliases: ['invalid'],
+        negatable: false,
+        help: 'Include commented-out duplicated or invalid entries in outputs.',
+        defaultsTo: false,
+      )
+      ..addFlag(
+        'dart-format',
+        aliases: ['format'],
+        help: 'Running `dart format` for the generated files.',
+        negatable: false,
+        defaultsTo: true,
+      )
+      ..addFlag(
+        'dart-fix',
+        aliases: ['fix'],
+        negatable: false,
+        help: 'Running `dart fix --apply` for the generated files.',
+        defaultsTo: true,
+      )
+      ..addFlag(
+        'fvm',
+        help: 'Should use `fvm` prefix when running the `dart` commands',
+        defaultsTo: false,
+      )
+      ..addFlag(
+        'json',
+        defaultsTo: false,
+        help: 'Export translations to JSON files instead of Dart files.',
+      )
+      ..addFlag(
+        'lazy',
+        defaultsTo: true,
+        help:
+            'Generate LazyLanguageData (lazy loading) instead of LanguageData.',
+      )
+      ..addFlag(
+        'verbose',
+        abbr: 'v',
+        help: 'Show verbose logs',
+        negatable: false,
+        defaultsTo: false,
+      )
+      ..addFlag('help', abbr: 'h', help: 'Show help', negatable: false);
     final argResult = parser.parse(args);
 
     if (argResult.flag('verbose')) {
