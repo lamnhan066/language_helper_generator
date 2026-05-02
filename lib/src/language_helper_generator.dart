@@ -13,6 +13,7 @@ import 'package:language_helper_generator/src/parser/parser.dart';
 import 'package:language_helper_generator/src/utils/list_all_files.dart';
 import 'package:lite_logger/lite_logger.dart';
 import 'package:path/path.dart' as p;
+import 'package:yaml/yaml.dart';
 
 /// A generator that scans Dart code for translation strings and generates
 /// language files for the [language_helper](https://pub.dev/packages/language_helper) package.
@@ -173,20 +174,69 @@ class LanguageHelperGenerator {
 
     _log(LogLevel.info, 'Arguments parsed: $args');
 
-    final path = argResult['path'] as String;
-    String? output = argResult['output'];
-    final languageCodes = _parseLanguageCodes(
-      argResult['languages'] as String?,
-    );
-    final ignoreTodoCodes = _parseOptionalLanguageCodes(
-      argResult['ignore-todo'] as String?,
-    );
-    final includeInvalid = argResult['include-invalid'] as bool;
-    final dartFormat = argResult['dart-format'] as bool;
-    final dartFix = argResult['dart-fix'] as bool;
-    final fvm = argResult['fvm'] as bool;
-    final isLazy = argResult['lazy'] as bool;
-    final keepDeprecated = argResult['keep-deprecated'] as bool;
+    final Map<String, Object?>? pubspecConfig = _loadPubspecConfig();
+
+    final path = argResult.wasParsed('path')
+        ? argResult['path'] as String
+        : (pubspecConfig != null && pubspecConfig['path'] is String
+              ? pubspecConfig['path'] as String
+              : argResult['path'] as String);
+
+    String? output = argResult.wasParsed('output')
+        ? argResult['output'] as String?
+        : (pubspecConfig != null && pubspecConfig['output'] is String
+              ? pubspecConfig['output'] as String
+              : argResult['output'] as String?);
+
+    final languageCodes = argResult.wasParsed('languages')
+        ? _parseLanguageCodes(argResult['languages'] as String?)
+        : _parseLanguageCodes(
+            _extractLanguagesFromPubspec(pubspecConfig) ??
+                (argResult['languages'] as String?),
+          );
+
+    final ignoreTodoCodes = argResult.wasParsed('ignore-todo')
+        ? _parseOptionalLanguageCodes(argResult['ignore-todo'] as String?)
+        : _parseOptionalLanguageCodes(
+            _extractIgnoreTodoFromPubspec(pubspecConfig) ??
+                (argResult['ignore-todo'] as String?),
+          );
+
+    final includeInvalid = argResult.wasParsed('include-invalid')
+        ? argResult['include-invalid'] as bool
+        : (pubspecConfig != null && pubspecConfig['include-invalid'] is bool
+              ? pubspecConfig['include-invalid'] as bool
+              : argResult['include-invalid'] as bool);
+
+    final dartFormat = argResult.wasParsed('dart-format')
+        ? argResult['dart-format'] as bool
+        : (pubspecConfig != null && pubspecConfig['dart-format'] is bool
+              ? pubspecConfig['dart-format'] as bool
+              : argResult['dart-format'] as bool);
+
+    final dartFix = argResult.wasParsed('dart-fix')
+        ? argResult['dart-fix'] as bool
+        : (pubspecConfig != null && pubspecConfig['dart-fix'] is bool
+              ? pubspecConfig['dart-fix'] as bool
+              : argResult['dart-fix'] as bool);
+
+    final fvm = argResult.wasParsed('fvm')
+        ? argResult['fvm'] as bool
+        : (pubspecConfig != null && pubspecConfig['fvm'] is bool
+              ? pubspecConfig['fvm'] as bool
+              : argResult['fvm'] as bool);
+
+    final isLazy = argResult.wasParsed('lazy')
+        ? argResult['lazy'] as bool
+        : (pubspecConfig != null && pubspecConfig['lazy'] is bool
+              ? pubspecConfig['lazy'] as bool
+              : argResult['lazy'] as bool);
+
+    final keepDeprecated = argResult.wasParsed('keep-deprecated')
+        ? argResult['keep-deprecated'] as bool
+        : (pubspecConfig != null && pubspecConfig['keep-deprecated'] is bool
+              ? pubspecConfig['keep-deprecated'] as bool
+              : argResult['keep-deprecated'] as bool);
 
     _log(LogLevel.debug, 'Path: $path');
     _log(LogLevel.debug, 'Output: ${output ?? 'default'}');
@@ -233,6 +283,53 @@ class LanguageHelperGenerator {
       _log(LogLevel.success, 'Dart language file generation complete.');
     }
     _log(LogLevel.success, 'Language helper code generation finished.');
+  }
+
+  Map<String, Object?>? _loadPubspecConfig() {
+    try {
+      final file = File(p.join(Directory.current.path, 'pubspec.yaml'));
+      if (!file.existsSync()) return null;
+      final content = file.readAsStringSync();
+      final doc = loadYaml(content);
+      if (doc is YamlMap && doc.containsKey('language_helper')) {
+        final node = doc['language_helper'];
+        if (node is YamlMap) {
+          final Map<String, Object?> result = {};
+          node.forEach((k, v) {
+            if (k is String) result[k] = v;
+          });
+          _log(
+            LogLevel.debug,
+            'Loaded language_helper config from pubspec.yaml: $result',
+          );
+          return result;
+        }
+      }
+    } catch (e) {
+      _log(LogLevel.warning, 'Failed to load pubspec.yaml: $e');
+    }
+    return null;
+  }
+
+  String? _extractLanguagesFromPubspec(Map<String, Object?>? pubspec) {
+    if (pubspec == null) return null;
+    final val = pubspec['languages'];
+    if (val == null) return null;
+    if (val is String) return val;
+    if (val is List) return val.map((e) => e.toString()).join(',');
+    return null;
+  }
+
+  String? _extractIgnoreTodoFromPubspec(Map<String, Object?>? pubspec) {
+    if (pubspec == null) return null;
+    final val =
+        pubspec['ignore-todo'] ??
+        pubspec['ignore_todo'] ??
+        pubspec['ignoreTodo'];
+    if (val == null) return null;
+    if (val is String) return val;
+    if (val is List) return val.map((e) => e.toString()).join(',');
+    return null;
   }
 
   Map<String, List<ParsedData>>? _generate(String path, String outputPath) {

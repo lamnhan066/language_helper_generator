@@ -774,4 +774,101 @@ void main() {
       tempDir.deleteSync(recursive: true);
     }
   });
+
+  test('Pubspec `language_helper` config is used when CLI not provided', () {
+    final tempDir = Directory.systemTemp.createTempSync('lang_helper_pubspec_');
+    final prevCwd = Directory.current.path;
+    try {
+      // switch current working directory so generator reads pubspec.yaml
+      Directory.current = tempDir.path;
+
+      // create pubspec.yaml with language_helper node
+      final pubspec = File('${tempDir.path}/pubspec.yaml');
+      pubspec.writeAsStringSync('''
+name: test_pkg
+language_helper:
+  path: ./lib
+  output: ./languages
+  languages:
+    - en
+    - vi
+''');
+
+      // create lib with a dart file containing translations
+      final libDir = Directory('${tempDir.path}/lib')
+        ..createSync(recursive: true);
+      File('${libDir.path}/page.dart').writeAsStringSync('''
+import 'package:language_helper/language_helper.dart';
+
+void main() {
+  'Hello'.tr;
+  'World'.tr;
+}
+''');
+
+      final generator = LanguageHelperGenerator();
+      // no CLI args: should pick up pubspec config
+      generator.generate([]);
+
+      final enFile = File('${tempDir.path}/languages/data/en.dart');
+      final viFile = File('${tempDir.path}/languages/data/vi.dart');
+      expect(enFile.existsSync(), isTrue);
+      expect(viFile.existsSync(), isTrue);
+      final enContent = enFile.readAsStringSync();
+      expect(enContent.contains('"Hello"'), isTrue);
+      expect(enContent.contains('"World"'), isTrue);
+    } finally {
+      // restore cwd and cleanup
+      Directory.current = prevCwd;
+      tempDir.deleteSync(recursive: true);
+    }
+  });
+
+  test('CLI arguments override pubspec `language_helper` config', () {
+    final tempDir = Directory.systemTemp.createTempSync(
+      'lang_helper_pubspec_cli_',
+    );
+    final prevCwd = Directory.current.path;
+    try {
+      Directory.current = tempDir.path;
+
+      final pubspec = File('${tempDir.path}/pubspec.yaml');
+      pubspec.writeAsStringSync('''
+name: test_pkg
+language_helper:
+  path: ./lib
+  output: ./languages
+  languages:
+    - en
+    - vi
+''');
+
+      final libDir = Directory('${tempDir.path}/lib')
+        ..createSync(recursive: true);
+      File('${libDir.path}/page.dart').writeAsStringSync('''
+import 'package:language_helper/language_helper.dart';
+
+void main() {
+  'Hello'.tr;
+}
+''');
+
+      final generator = LanguageHelperGenerator();
+      // pass CLI languages 'es' which should override pubspec's en,vi
+      generator.generate([
+        '--languages=es',
+        '--output=${tempDir.path}/languages',
+      ]);
+
+      final esFile = File('${tempDir.path}/languages/data/es.dart');
+      final enFile = File('${tempDir.path}/languages/data/en.dart');
+      final viFile = File('${tempDir.path}/languages/data/vi.dart');
+      expect(esFile.existsSync(), isTrue);
+      expect(enFile.existsSync(), isFalse);
+      expect(viFile.existsSync(), isFalse);
+    } finally {
+      Directory.current = prevCwd;
+      tempDir.deleteSync(recursive: true);
+    }
+  });
 }

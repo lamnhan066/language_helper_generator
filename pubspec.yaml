@@ -1,5 +1,6 @@
 name: language_helper_generator
-description: A generator for language_helper helps you create a base structure for language_helper.
+description: A generator for language_helper helps you create a base structure
+  for language_helper.
 version: 0.8.2
 homepage: https://github.com/lamnhan066/language_helper_generator
 
@@ -11,6 +12,7 @@ dependencies:
   args: ^2.7.0
   path: ^1.9.1
   lite_logger: ^0.2.0
+  yaml: ^3.1.1
 
 dev_dependencies:
   test: ^1.28.0
