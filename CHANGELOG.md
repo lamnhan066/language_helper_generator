@@ -1,3 +1,9 @@
+## 0.8.3
+
+* Add support for configuring the generator via a top-level `language_helper` node
+  in `pubspec.yaml`. The generator reads `pubspec.yaml` from the current working
+  directory and merges values using the precedence: CLI > pubspec > defaults.
+
 ## 0.8.2
 
 * Downgrade analyzer dependency to version 8.4.1 to make it compatible with the more Flutter versions.
