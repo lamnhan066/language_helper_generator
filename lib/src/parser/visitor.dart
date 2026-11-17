@@ -21,11 +21,13 @@ class StringLiteralVisitor extends RecursiveAstVisitor<void> {
   @override
   void visitMethodInvocation(MethodInvocation node) {
     if (node.methodName.name == 'translate' && node.target != null) {
-      final first = node.argumentList.arguments.first;
+      if (node.argumentList.arguments.isNotEmpty) {
+        final first = node.argumentList.arguments.first.argumentExpression;
 
-      ParsedData? parsedData = _parseExpression(first);
-      if (parsedData != null) {
-        this.parsedData.add(parsedData);
+        ParsedData? parsedData = _parseExpression(first);
+        if (parsedData != null) {
+          this.parsedData.add(parsedData);
+        }
       }
     }
 
