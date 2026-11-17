@@ -1,3 +1,7 @@
+## 0.9.0
+
+* Widen `analyzer` dependency to `>=13.0.0 <15.0.0` to compatible with Flutter 3.50's `flutter_test` pin.
+
 ## 0.8.3
 
 * Add support for configuring the generator via a top-level `language_helper` node
