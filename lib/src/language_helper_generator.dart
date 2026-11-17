@@ -156,10 +156,9 @@ class LanguageHelperGenerator {
       logger = LiteLogger(
         name: 'LanguageHelperGenerator',
         minLevel: LogLevel.debug,
-        usePrint: true,
       );
     } else {
-      logger = LiteLogger(name: 'LanguageHelperGenerator', usePrint: true);
+      logger = LiteLogger(name: 'LanguageHelperGenerator');
     }
 
     _log(LogLevel.info, 'Starting language helper code generation...');
